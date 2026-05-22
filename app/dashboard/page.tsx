@@ -4,8 +4,9 @@ import RatesManager from '@/components/dashboard/RatesManager'
 
 export default async function DashboardPage() {
   const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) redirect('/login')
+  const user = session.user
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
   if (!profile) redirect('/setup')
   const { data: rateConfigs } = await supabase.from('rate_configs').select('*').eq('profile_id', user.id).order('sort_order')
