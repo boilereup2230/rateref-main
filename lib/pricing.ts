@@ -20,7 +20,7 @@ export type AddonKey = keyof typeof ADDON_RATES
 export interface RateConfig {
   post_type:             string
   label:                 string
-  description:           string
+description: string | null
   multiplier:            number
   manual_override_cents: number | null
   is_enabled:            boolean
