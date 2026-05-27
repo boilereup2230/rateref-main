@@ -1,14 +1,42 @@
-import { redirect } from 'next/navigation'
-import { createServerSupabaseClient } from '@/lib/supabase-server'
-import RatesManager from '@/components/dashboard/RatesManager'
+'use client'
 
-export default async function DashboardPage() {
-  const supabase = await createServerSupabaseClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
-  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
-  if (!profile) redirect('/setup')
-  const { data: rateConfigs } = await supabase.from('rate_configs').select('*').eq('profile_id', user.id).order('sort_order')
-  const { data: inquiries } = await supabase.from('inquiries').select('*').eq('profile_id', user.id).order('created_at', { ascending: false }).limit(20)
-  return <RatesManager profile={profile} rateConfigs={rateConfigs ?? []} inquiries={inquiries ?? []} />
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase-browser'
+import { useRouter } from 'next/navigation'
+import RatesManager from '@/components/dashboard/RatesManager'
+import type { Profile, RateConfigRow, InquiryRow } from '@/lib/supabase-browser'
+
+export default function DashboardPage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [rateConfigs, setRateConfigs] = useState<RateConfigRow[]>([])
+  const [inquiries, setInquiries] = useState<InquiryRow[]>([])
+
+  useEffect(() => {
+    async function load() {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { router.push('/login'); return }
+      const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+      if (!profileData) { router.push('/setup'); return }
+      const { data: rateConfigsData } = await supabase.from('rate_configs').select('*').eq('profile_id', user.id).order('sort_order')
+      const { data: inquiriesData } = await supabase.from('inquiries').select('*').eq('profile_id', user.id).order('created_at', { ascending: false }).limit(20)
+      setProfile(profileData)
+      setRateConfigs(rateConfigsData ?? [])
+      setInquiries(inquiriesData ?? [])
+      setLoading(false)
+    }
+    load()
+  }, [router])
+
+  if (loading) return (
+    <div style={{ padding: '40px', fontFamily: 'sans-serif', color: '#6b7280' }}>
+      Loading your dashboard...
+    </div>
+  )
+
+  if (!profile) return null
+
+  return <RatesManager profile={profile} rateConfigs={rateConfigs} inquiries={inquiries} />
 }
