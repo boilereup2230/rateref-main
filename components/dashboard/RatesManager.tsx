@@ -17,13 +17,13 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
   const [tab, setTab]           = useState<Tab>('rates')
   const [configs, setConfigs]   = useState(initial)
   const [dirty, setDirty]       = useState<Set<string>>(new Set())
+  const [metricsDirty, setMetricsDirty] = useState(false)
   const [saving, startSave]     = useTransition()
   const [saved,  setSaved]      = useState(false)
   const [error,  setError]      = useState('')
 
-  // Profile editing
-  const [followers,   setFollowers]   = useState(String(profile.follower_count))
-  const [engagement,  setEngagement]  = useState(String(profile.engagement_rate))
+  const [followers,  setFollowers]  = useState(String(profile.follower_count))
+  const [engagement, setEngagement] = useState(String(profile.engagement_rate))
 
   function updateConfig(id: string, patch: Partial<RateConfigRow>) {
     setConfigs(cs => cs.map(c => c.id === id ? { ...c, ...patch } : c))
@@ -35,6 +35,12 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
     const digits = raw.replace(/[^0-9.]/g, '')
     const cents  = digits ? Math.round(parseFloat(digits) * 100) : null
     updateConfig(id, { manual_override_cents: cents })
+  }
+
+  function handleMetricChange(setter: (v: string) => void, value: string) {
+    setter(value)
+    setMetricsDirty(true)
+    setSaved(false)
   }
 
   function handleSave() {
@@ -49,7 +55,6 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
         if (error) { setError('Save failed — please try again.'); return }
       }
 
-      // Update follower/engagement on profile
       const followerNum   = parseInt(followers)   || profile.follower_count
       const engagementNum = parseFloat(engagement) || profile.engagement_rate
       await supabase.from('profiles').update({
@@ -58,6 +63,7 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
       }).eq('id', profile.id)
 
       setDirty(new Set())
+      setMetricsDirty(false)
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     })
@@ -68,14 +74,14 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
     window.location.href = '/login'
   }
 
-  const engagementNum  = parseFloat(engagement)  || 0
-  const followerNum    = parseInt(followers)      || 0
-  const publicUrl      = `${process.env.NEXT_PUBLIC_APP_URL ?? ''}/c/${profile.slug}`
-  const newInquiries   = inquiries.filter(i => i.status === 'new').length
+  const engagementNum = parseFloat(engagement) || 0
+  const followerNum   = parseInt(followers)     || 0
+  const publicUrl     = `${typeof window !== 'undefined' ? window.location.origin : ''}/c/${profile.slug}`
+  const newInquiries  = inquiries.filter(i => i.status === 'new').length
+  const hasChanges    = dirty.size > 0 || metricsDirty
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Top nav */}
       <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <span className="font-semibold text-gray-900">RateRef</span>
@@ -94,7 +100,6 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
 
       <div className="max-w-3xl mx-auto px-4 py-8">
 
-        {/* Stats bar */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           <StatCard label="Followers" value={followerNum.toLocaleString()} />
           <StatCard label="Engagement rate"
@@ -104,7 +109,6 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
             sub={newInquiries > 0 ? 'Needs attention' : undefined} />
         </div>
 
-        {/* Update metrics */}
         <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-6">
           <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">
             Update your metrics
@@ -112,20 +116,21 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
           <div className="flex gap-4">
             <div className="flex-1">
               <label className="text-xs text-gray-500 mb-1 block">Total followers</label>
-              <input value={followers} onChange={e => setFollowers(e.target.value)}
+              <input value={followers}
+                onChange={e => handleMetricChange(setFollowers, e.target.value)}
                 type="number" min="0"
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
             </div>
             <div className="flex-1">
               <label className="text-xs text-gray-500 mb-1 block">Engagement rate %</label>
-              <input value={engagement} onChange={e => setEngagement(e.target.value)}
+              <input value={engagement}
+                onChange={e => handleMetricChange(setEngagement, e.target.value)}
                 type="number" min="0" max="100" step="0.1"
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
             </div>
           </div>
         </div>
 
-        {/* Tabs */}
         <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
           {(['rates', 'inquiries', 'settings'] as Tab[]).map(t => (
             <button key={t} onClick={() => setTab(t)}
@@ -140,7 +145,6 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
           ))}
         </div>
 
-        {/* ── RATES TAB ── */}
         {tab === 'rates' && (
           <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
             <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
@@ -154,7 +158,6 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
                 <div key={cfg.id}
                   className={`px-5 py-4 border-b border-gray-100 last:border-0 ${!cfg.is_enabled ? 'opacity-50' : ''}`}>
                   <div className="flex items-start gap-4">
-                    {/* Toggle */}
                     <button onClick={() => updateConfig(cfg.id, { is_enabled: !cfg.is_enabled })}
                       className={`mt-0.5 w-9 h-5 rounded-full transition-colors flex-shrink-0 ${
                         cfg.is_enabled ? 'bg-emerald-500' : 'bg-gray-200'
@@ -163,14 +166,10 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
                         cfg.is_enabled ? 'translate-x-4' : 'translate-x-0'
                       }`} />
                     </button>
-
-                    {/* Label */}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900">{cfg.label}</p>
                       <p className="text-xs text-gray-400 mt-0.5">{cfg.description}</p>
                     </div>
-
-                    {/* Price + override */}
                     <div className="text-right flex-shrink-0">
                       <p className="text-sm font-medium text-gray-900">{result.priceFormatted}</p>
                       <p className="text-xs text-gray-400 mt-0.5">
@@ -178,13 +177,10 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
                       </p>
                       <div className="mt-2 flex items-center gap-1">
                         <span className="text-xs text-gray-400">$</span>
-                        <input
-                          type="text" inputMode="decimal"
-                          placeholder="Override"
+                        <input type="text" inputMode="decimal" placeholder="Override"
                           value={cfg.manual_override_cents ? (cfg.manual_override_cents / 100).toFixed(0) : ''}
                           onChange={e => handleOverrideInput(cfg.id, e.target.value)}
-                          className="w-20 px-2 py-1 border border-gray-200 rounded-md text-xs text-right focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                        />
+                          className="w-20 px-2 py-1 border border-gray-200 rounded-md text-xs text-right focus:outline-none focus:ring-1 focus:ring-emerald-500" />
                       </div>
                     </div>
                   </div>
@@ -192,15 +188,13 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
                 </div>
               )
             })}
-
-            {/* Save bar */}
             <div className="px-5 py-4 bg-gray-50 flex items-center justify-between">
               {error && <p className="text-sm text-red-600">{error}</p>}
               {saved  && <p className="text-sm text-emerald-600">✓ Saved</p>}
               {!error && !saved && <p className="text-xs text-gray-400">
-                {dirty.size > 0 ? `${dirty.size} unsaved change${dirty.size > 1 ? 's' : ''}` : 'All changes saved'}
+                {hasChanges ? 'Unsaved changes' : 'All changes saved'}
               </p>}
-              <button onClick={handleSave} disabled={saving || dirty.size === 0}
+              <button onClick={handleSave} disabled={saving || !hasChanges}
                 className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-40 transition-colors">
                 {saving ? 'Saving…' : 'Save changes'}
               </button>
@@ -208,7 +202,6 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
           </div>
         )}
 
-        {/* ── INQUIRIES TAB ── */}
         {tab === 'inquiries' && (
           <div className="space-y-3">
             {inquiries.length === 0 && (
@@ -255,7 +248,6 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
           </div>
         )}
 
-        {/* ── SETTINGS TAB ── */}
         {tab === 'settings' && (
           <div className="bg-white rounded-2xl border border-gray-200 p-6">
             <p className="text-sm font-medium text-gray-700 mb-4">Your public link</p>
