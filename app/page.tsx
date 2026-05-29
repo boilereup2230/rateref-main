@@ -30,8 +30,9 @@ export default function LandingPage() {
         .quote-card{background:#1f2937;border-radius:12px;padding:16px;margin-top:12px}
         .nav-link{font-family:'DM Sans',sans-serif;font-size:14px;color:#9ca3af;text-decoration:none;transition:color .15s}
         .nav-link:hover{color:#f5f0e8}
-        .gradient-text{background:linear-gradient(135deg,#f5f0e8 0%,#6ee7b7 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
         .glow{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
+        .beacons-bar{background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:10px;padding:12px 20px;display:inline-flex;align-items:center;gap:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:#9ca3af;margin-top:16px}
+        .beacons-bar span{color:#6ee7b7;font-weight:500}
         @media(max-width:768px){
           .hero-title{font-size:42px !important}
           .nav-links{display:none}
@@ -64,8 +65,8 @@ export default function LandingPage() {
           <div style={{display:'flex',justifyContent:'center',marginBottom:24}}>
             <span className="pill"><span className="dot"/>&nbsp;Free to start · No credit card</span>
           </div>
-          <h1 className="hero-text hero-title gradient-text" style={{fontSize:72,fontWeight:900,lineHeight:1.05,letterSpacing:'-.03em',marginBottom:24}}>
-            Replace your<br/><em>media kit</em><br/>with a live link.
+          <h1 className="hero-text hero-title" style={{fontSize:72,fontWeight:900,lineHeight:1.05,letterSpacing:'-.03em',marginBottom:24,color:'#f5f0e8'}}>
+            Replace your<br/><em style={{color:'#10b981'}}>media kit</em><br/>with a live link.
           </h1>
           <p className="body-text" style={{fontSize:20,color:'#9ca3af',maxWidth:560,margin:'0 auto 40px',lineHeight:1.6,fontWeight:300}}>
             RateRef gives you a live, shareable rate card link. Brands click it, build their campaign quote in real time, and submit a booking request — no emails, no spreadsheets, no back-and-forth.
@@ -74,7 +75,12 @@ export default function LandingPage() {
             <a href="/login" className="cta-btn">Create your free rate card →</a>
             <a href="#how" className="cta-secondary">See how it works ↓</a>
           </div>
-          <p className="body-text" style={{color:'#4b5563',fontSize:13,marginTop:16}}>Takes 3 minutes · Free forever on the free tier</p>
+          <div style={{display:'flex',justifyContent:'center',marginTop:16}}>
+            <div className="beacons-bar">
+              <span>✓</span> Already on Beacons or Linktree? Just add your RateRef link as a <span>"Brand partnerships"</span> button. 30 seconds.
+            </div>
+          </div>
+          <p className="body-text" style={{color:'#4b5563',fontSize:13,marginTop:12}}>Takes 3 minutes · Free forever on the free tier</p>
         </div>
 
         <div style={{maxWidth:420,margin:'0 auto'}}>
@@ -83,7 +89,7 @@ export default function LandingPage() {
               <div className="mock-dot" style={{background:'#ef4444'}}/>
               <div className="mock-dot" style={{background:'#f59e0b'}}/>
               <div className="mock-dot" style={{background:'#10b981'}}/>
-              <span className="body-text" style={{color:'#6b7280',fontSize:12,marginLeft:8}}>rateref.app/c/saracreates</span>
+              <span className="body-text" style={{color:'#6b7280',fontSize:12,marginLeft:8}}>rateref.co/c/saracreates</span>
             </div>
             <div style={{padding:'20px 18px 8px'}}>
               <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
@@ -151,7 +157,7 @@ export default function LandingPage() {
         <div className="steps-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:24}}>
           {[
             {n:'01',title:'Set up your profile',desc:'Enter your display name, handle, follower count, and engagement rate. Takes 2 minutes. Edit anytime.'},
-            {n:'02',title:'Get your link',desc:'Your live rate card is instantly published at rateref.app/c/yourname. Drop it in your Instagram bio, email signature, or DMs.'},
+            {n:'02',title:'Get your link',desc:'Your live rate card is instantly published at rateref.co/c/yourname. Drop it in your Instagram bio, Beacons page, email signature, or DMs.'},
             {n:'03',title:'Brands book you',desc:'When a brand clicks your link, they build their own campaign quote, see real-time pricing, and submit a booking request directly to your dashboard.'},
           ].map((s,i) => (
             <div key={i} className="feature-card">
@@ -178,7 +184,7 @@ export default function LandingPage() {
             {icon:'📊',title:'Real-time quote builder',desc:'Brands select exactly what they want — Reels, Stories, TikToks — and see a live campaign total build in real time. They show up to your inbox knowing the number.'},
             {icon:'➕',title:'Add-ons built in',desc:'Whitelisting (+20%), exclusivity (+30%), and rush fees (+15%) are standard options on every card. No more negotiating these separately.'},
             {icon:'📥',title:'Inquiry dashboard',desc:'Every booking request comes with the brand\'s name, email, campaign brief, and the exact quote they saw. Everything you need to respond fast.'},
-            {icon:'🔗',title:'One link does everything',desc:'The link in your Instagram bio replaces your media kit, your rate sheet, your DM back-and-forth, and your inquiry form. One thing, done right.'},
+            {icon:'🔗',title:'One link does everything',desc:'Add your RateRef link to your Beacons page, email signature, or anywhere you talk to brands. Your media kit, rate sheet, and booking form all in one place.'},
           ].map((f,i) => (
             <div key={i} className="feature-card">
               <div style={{fontSize:28,marginBottom:14}}>{f.icon}</div>
@@ -232,8 +238,8 @@ export default function LandingPage() {
       <div className="divider" style={{maxWidth:1100,margin:'0 auto'}}/>
 
       <section style={{padding:'0 40px 120px',maxWidth:700,margin:'0 auto',textAlign:'center'}}>
-        <h2 className="hero-text" style={{fontSize:56,fontWeight:900,letterSpacing:'-.03em',marginBottom:20,lineHeight:1.05}}>
-          Your rates deserve<br/>a <em className="gradient-text">better home.</em>
+        <h2 className="hero-text" style={{fontSize:56,fontWeight:900,letterSpacing:'-.03em',marginBottom:20,lineHeight:1.05,color:'#f5f0e8'}}>
+          Your rates deserve<br/>a <em style={{color:'#10b981'}}>better home.</em>
         </h2>
         <p className="body-text" style={{color:'#9ca3af',fontSize:18,marginBottom:40,lineHeight:1.6,fontWeight:300}}>
           Stop losing brand deals to slow back-and-forth. Get a live rate card that works while you sleep.
