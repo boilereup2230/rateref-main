@@ -66,7 +66,9 @@ export default function LandingPage() {
             <span className="pill"><span className="dot"/>&nbsp;Free to start · No credit card</span>
           </div>
           <h1 className="hero-text hero-title" style={{fontSize:72,fontWeight:900,lineHeight:1.05,letterSpacing:'-.03em',marginBottom:24,color:'#f5f0e8'}}>
-            Replace your<br/><em style={{color:'#10b981'}}>media kit</em><br/>with a live link.
+            Replace your<br/>
+            <em style={{background:'linear-gradient(135deg,#f5f0e8 0%,#10b981 100%)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>media kit</em>
+            <br/>with a live link.
           </h1>
           <p className="body-text" style={{fontSize:20,color:'#9ca3af',maxWidth:560,margin:'0 auto 40px',lineHeight:1.6,fontWeight:300}}>
             RateRef gives you a live, shareable rate card link. Brands click it, build their campaign quote in real time, and submit a booking request — no emails, no spreadsheets, no back-and-forth.
@@ -256,7 +258,11 @@ export default function LandingPage() {
           <span className="hero-text" style={{fontSize:16,fontWeight:700}}>RateRef</span>
         </div>
         <p className="body-text" style={{color:'#374151',fontSize:13}}>The live rate card for creators who do brand deals.</p>
-        <a href="/login" className="body-text" style={{color:'#6b7280',fontSize:13,textDecoration:'none'}}>Sign in →</a>
+        <div style={{display:'flex',gap:20,alignItems:'center'}}>
+          <a href="/terms" style={{color:'#6b7280',fontSize:13,textDecoration:'none',fontFamily:'DM Sans,sans-serif'}}>Terms</a>
+          <a href="/privacy" style={{color:'#6b7280',fontSize:13,textDecoration:'none',fontFamily:'DM Sans,sans-serif'}}>Privacy</a>
+          <a href="/login" style={{color:'#6b7280',fontSize:13,textDecoration:'none',fontFamily:'DM Sans,sans-serif'}}>Sign in →</a>
+        </div>
       </footer>
     </div>
   )
