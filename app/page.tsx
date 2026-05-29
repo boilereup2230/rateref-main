@@ -34,7 +34,6 @@ export default function LandingPage() {
         .glow{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
         @media(max-width:768px){
           .hero-title{font-size:42px !important}
-          .mock-wrapper{display:none}
           .nav-links{display:none}
           .features-grid{grid-template-columns:1fr !important}
           .steps-grid{grid-template-columns:1fr !important}
@@ -45,7 +44,6 @@ export default function LandingPage() {
       <div className="glow" style={{width:600,height:600,background:'rgba(5,150,105,0.08)',top:-200,left:-200,position:'absolute'}} />
       <div className="glow" style={{width:400,height:400,background:'rgba(16,185,129,0.05)',top:400,right:-100,position:'absolute'}} />
 
-      {/* Nav */}
       <nav style={{padding:'20px 40px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:'1px solid rgba(255,255,255,0.06)',position:'sticky',top:0,background:'rgba(10,10,10,0.9)',backdropFilter:'blur(12px)',zIndex:50}}>
         <div style={{display:'flex',alignItems:'center',gap:8}}>
           <div style={{width:32,height:32,background:'#059669',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center'}}>
@@ -61,14 +59,13 @@ export default function LandingPage() {
         <a href="/login" className="cta-btn" style={{padding:'10px 20px',fontSize:14}}>Get started free →</a>
       </nav>
 
-      {/* Hero */}
       <section style={{padding:'100px 40px 80px',maxWidth:1100,margin:'0 auto',position:'relative'}}>
         <div style={{textAlign:'center',marginBottom:64}}>
           <div style={{display:'flex',justifyContent:'center',marginBottom:24}}>
             <span className="pill"><span className="dot"/>&nbsp;Free to start · No credit card</span>
           </div>
           <h1 className="hero-text hero-title gradient-text" style={{fontSize:72,fontWeight:900,lineHeight:1.05,letterSpacing:'-.03em',marginBottom:24}}>
-            Stop sending<br/><em>rate PDFs</em><br/>to brands.
+            Replace your<br/><em>media kit</em><br/>with a live link.
           </h1>
           <p className="body-text" style={{fontSize:20,color:'#9ca3af',maxWidth:560,margin:'0 auto 40px',lineHeight:1.6,fontWeight:300}}>
             RateRef gives you a live, shareable rate card link. Brands click it, build their campaign quote in real time, and submit a booking request — no emails, no spreadsheets, no back-and-forth.
@@ -80,7 +77,6 @@ export default function LandingPage() {
           <p className="body-text" style={{color:'#4b5563',fontSize:13,marginTop:16}}>Takes 3 minutes · Free forever on the free tier</p>
         </div>
 
-        {/* Mock */}
         <div style={{maxWidth:420,margin:'0 auto'}}>
           <div className="mock-card">
             <div className="mock-header">
@@ -147,11 +143,10 @@ export default function LandingPage() {
 
       <div className="divider" style={{maxWidth:1100,margin:'0 auto'}}/>
 
-      {/* How it works */}
       <section id="how" style={{padding:'0 40px 80px',maxWidth:1100,margin:'0 auto'}}>
         <div style={{textAlign:'center',marginBottom:56}}>
           <h2 className="hero-text" style={{fontSize:48,fontWeight:800,letterSpacing:'-.02em',marginBottom:16}}>Three minutes to live.</h2>
-          <p className="body-text" style={{color:'#6b7280',fontSize:18,fontWeight:300}}>No media kit software. No design tools. No waiting.</p>
+          <p className="body-text" style={{color:'#9ca3af',fontSize:18,fontWeight:300}}>No media kit software. No design tools. No waiting.</p>
         </div>
         <div className="steps-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:24}}>
           {[
@@ -162,7 +157,7 @@ export default function LandingPage() {
             <div key={i} className="feature-card">
               <div className="step-num">{s.n}</div>
               <h3 className="hero-text" style={{fontSize:22,fontWeight:700,marginBottom:12,letterSpacing:'-.01em'}}>{s.title}</h3>
-              <p className="body-text" style={{color:'#6b7280',lineHeight:1.6,fontSize:15,fontWeight:300}}>{s.desc}</p>
+              <p className="body-text" style={{color:'#9ca3af',lineHeight:1.6,fontSize:15,fontWeight:300}}>{s.desc}</p>
             </div>
           ))}
         </div>
@@ -170,7 +165,6 @@ export default function LandingPage() {
 
       <div className="divider" style={{maxWidth:1100,margin:'0 auto'}}/>
 
-      {/* Why */}
       <section id="why" style={{padding:'0 40px 80px',maxWidth:1100,margin:'0 auto'}}>
         <div style={{textAlign:'center',marginBottom:56}}>
           <h2 className="hero-text" style={{fontSize:48,fontWeight:800,letterSpacing:'-.02em',marginBottom:16}}>
@@ -180,7 +174,7 @@ export default function LandingPage() {
         <div className="features-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:24}}>
           {[
             {icon:'⚡',title:'Engagement bonus pricing',desc:'If your engagement rate is above 3%, your rates automatically apply a 1.5× bonus multiplier. Your pricing reflects your actual value, not just your follower count.'},
-            {icon:'🔄',title:'Live rates, always current',desc:'Unlike a PDF that goes stale the moment your metrics change, your RateRef card updates automatically. Brands always see your current pricing.'},
+            {icon:'🔄',title:'Live rates, always current',desc:'Unlike a PDF that goes stale the moment your metrics change, your RateRef card always shows your latest rates. Update your metrics in seconds anytime from your dashboard.'},
             {icon:'📊',title:'Real-time quote builder',desc:'Brands select exactly what they want — Reels, Stories, TikToks — and see a live campaign total build in real time. They show up to your inbox knowing the number.'},
             {icon:'➕',title:'Add-ons built in',desc:'Whitelisting (+20%), exclusivity (+30%), and rush fees (+15%) are standard options on every card. No more negotiating these separately.'},
             {icon:'📥',title:'Inquiry dashboard',desc:'Every booking request comes with the brand\'s name, email, campaign brief, and the exact quote they saw. Everything you need to respond fast.'},
@@ -189,7 +183,7 @@ export default function LandingPage() {
             <div key={i} className="feature-card">
               <div style={{fontSize:28,marginBottom:14}}>{f.icon}</div>
               <h3 className="hero-text" style={{fontSize:20,fontWeight:700,marginBottom:10,letterSpacing:'-.01em'}}>{f.title}</h3>
-              <p className="body-text" style={{color:'#6b7280',lineHeight:1.6,fontSize:15,fontWeight:300}}>{f.desc}</p>
+              <p className="body-text" style={{color:'#9ca3af',lineHeight:1.6,fontSize:15,fontWeight:300}}>{f.desc}</p>
             </div>
           ))}
         </div>
@@ -197,18 +191,17 @@ export default function LandingPage() {
 
       <div className="divider" style={{maxWidth:1100,margin:'0 auto'}}/>
 
-      {/* Pricing */}
       <section id="pricing" style={{padding:'0 40px 80px',maxWidth:1100,margin:'0 auto'}}>
         <div style={{textAlign:'center',marginBottom:56}}>
           <h2 className="hero-text" style={{fontSize:48,fontWeight:800,letterSpacing:'-.02em',marginBottom:16}}>Free to start.<br/>Always.</h2>
-          <p className="body-text" style={{color:'#6b7280',fontSize:18,fontWeight:300}}>No credit card required. No trial period. Just sign up and go.</p>
+          <p className="body-text" style={{color:'#9ca3af',fontSize:18,fontWeight:300}}>No credit card required. No trial period. Just sign up and go.</p>
         </div>
         <div className="pricing-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:24,maxWidth:720,margin:'0 auto'}}>
           <div className="feature-card" style={{padding:36}}>
-            <p className="body-text" style={{color:'#6b7280',fontSize:13,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>Free tier</p>
+            <p className="body-text" style={{color:'#9ca3af',fontSize:13,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>Free tier</p>
             <div style={{display:'flex',alignItems:'baseline',gap:4,marginBottom:24}}>
               <span className="hero-text" style={{fontSize:48,fontWeight:900}}>$0</span>
-              <span className="body-text" style={{color:'#6b7280',fontSize:15}}>/month</span>
+              <span className="body-text" style={{color:'#9ca3af',fontSize:15}}>/month</span>
             </div>
             {['Full live rate card','Up to 10 inquiries/month','All post types & add-ons','Booking request dashboard','"Powered by RateRef" footer'].map((f,i) => (
               <div key={i} style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
@@ -220,10 +213,10 @@ export default function LandingPage() {
           </div>
           <div className="feature-card" style={{padding:36,borderColor:'rgba(16,185,129,0.3)',background:'rgba(16,185,129,0.05)',position:'relative'}}>
             <div style={{position:'absolute',top:-12,right:20,background:'#059669',color:'#fff',fontSize:11,fontFamily:'DM Sans,sans-serif',fontWeight:600,padding:'4px 12px',borderRadius:20,letterSpacing:'.05em',textTransform:'uppercase'}}>Coming soon</div>
-            <p className="body-text" style={{color:'#6b7280',fontSize:13,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>Pro tier</p>
+            <p className="body-text" style={{color:'#9ca3af',fontSize:13,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>Pro tier</p>
             <div style={{display:'flex',alignItems:'baseline',gap:4,marginBottom:24}}>
               <span className="hero-text" style={{fontSize:48,fontWeight:900}}>$19</span>
-              <span className="body-text" style={{color:'#6b7280',fontSize:15}}>/month</span>
+              <span className="body-text" style={{color:'#9ca3af',fontSize:15}}>/month</span>
             </div>
             {['Everything in free','Unlimited inquiries','Remove RateRef footer','Rate analytics & insights','Multiple platform configs'].map((f,i) => (
               <div key={i} style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
@@ -231,26 +224,24 @@ export default function LandingPage() {
                 <span className="body-text" style={{color:'#9ca3af',fontSize:14}}>{f}</span>
               </div>
             ))}
-            <div style={{width:'100%',padding:'14px 0',textAlign:'center',marginTop:24,borderRadius:12,border:'1px solid rgba(16,185,129,0.2)',color:'#4b5563',fontFamily:'DM Sans,sans-serif',fontSize:15}}>Notify me when live</div>
+            <div style={{width:'100%',padding:'14px 0',textAlign:'center',marginTop:24,borderRadius:12,border:'1px solid rgba(16,185,129,0.2)',color:'#6b7280',fontFamily:'DM Sans,sans-serif',fontSize:15}}>Notify me when live</div>
           </div>
         </div>
       </section>
 
       <div className="divider" style={{maxWidth:1100,margin:'0 auto'}}/>
 
-      {/* Final CTA */}
       <section style={{padding:'0 40px 120px',maxWidth:700,margin:'0 auto',textAlign:'center'}}>
         <h2 className="hero-text" style={{fontSize:56,fontWeight:900,letterSpacing:'-.03em',marginBottom:20,lineHeight:1.05}}>
           Your rates deserve<br/>a <em className="gradient-text">better home.</em>
         </h2>
-        <p className="body-text" style={{color:'#6b7280',fontSize:18,marginBottom:40,lineHeight:1.6,fontWeight:300}}>
+        <p className="body-text" style={{color:'#9ca3af',fontSize:18,marginBottom:40,lineHeight:1.6,fontWeight:300}}>
           Stop losing brand deals to slow back-and-forth. Get a live rate card that works while you sleep.
         </p>
         <a href="/login" className="cta-btn" style={{fontSize:17,padding:'18px 40px'}}>Create your free rate card →</a>
         <p className="body-text" style={{color:'#374151',fontSize:13,marginTop:16}}>3 minutes to set up · No credit card · Free forever on free tier</p>
       </section>
 
-      {/* Footer */}
       <footer style={{borderTop:'1px solid rgba(255,255,255,0.06)',padding:'32px 40px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:16}}>
         <div style={{display:'flex',alignItems:'center',gap:8}}>
           <div style={{width:28,height:28,background:'#059669',borderRadius:6,display:'flex',alignItems:'center',justifyContent:'center'}}>
