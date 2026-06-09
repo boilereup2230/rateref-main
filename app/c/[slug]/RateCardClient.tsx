@@ -75,6 +75,20 @@ export default function RateCardClient({ profile, rateConfigs }: Props) {
       return
     }
 
+    // Send notification email to creator
+    await fetch('/api/send-inquiry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        creatorEmail: profile.email,
+        creatorName: profile.display_name,
+        brandName,
+        contactEmail: email,
+        message,
+        total: quote.totalFormatted,
+      }),
+    })
+
     setSubmitted(true)
   }
 
