@@ -23,7 +23,7 @@ export default function SetupPage() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { setError('You must be logged in.'); setLoading(false); return }
     const { error: profileError } = await supabase.from('profiles').insert({
-      id: user.id, display_name: form.display_name, slug: form.slug,
+      id: user.id, email: user.email, display_name: form.display_name, slug: form.slug,
       bio: form.bio || null, instagram_handle: form.instagram_handle || null,
       tiktok_handle: form.tiktok_handle || null,
       follower_count: parseInt(form.follower_count) || 0,
