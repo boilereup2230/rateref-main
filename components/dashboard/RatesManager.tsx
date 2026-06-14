@@ -8,6 +8,7 @@ interface Props {
   profile:     Profile
   rateConfigs: RateConfigRow[]
   inquiries:   InquiryRow[]
+  monthlyInquiryCount: number
 }
 
 type Tab = 'rates' | 'inquiries' | 'settings'
@@ -22,7 +23,7 @@ const STATUS_STYLES: Record<Status, string> = {
   declined:  'bg-red-50 text-red-700',
 }
 
-export default function RatesManager({ profile, rateConfigs: initial, inquiries: initialInquiries }: Props) {
+export default function RatesManager({ profile, rateConfigs: initial, inquiries: initialInquiries, monthlyInquiryCount }: Props) {
   const supabase    = createClient()
   const [tab, setTab]           = useState<Tab>('rates')
   const [configs, setConfigs]   = useState(initial)
@@ -208,6 +209,25 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
             sub={engagementNum >= 3 ? '⚡ Bonus tier active' : undefined} />
           <StatCard label="Pending inquiries" value={String(newInquiries)}
             sub={newInquiries > 0 ? 'Needs attention' : undefined} />
+        </div>
+
+        <div className="bg-white rounded-2xl border border-gray-200 p-4 mb-6 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-gray-900">
+              {monthlyInquiryCount} / 10 inquiries this month
+            </p>
+            <p className="text-xs text-gray-400 mt-0.5">Free plan resets monthly</p>
+          </div>
+          {monthlyInquiryCount >= 10 && (
+            <span className="text-xs font-medium bg-amber-50 text-amber-700 px-3 py-1.5 rounded-full">
+              Pro ($19/mo) coming soon — unlimited inquiries
+            </span>
+          )}
+          {monthlyInquiryCount < 10 && monthlyInquiryCount >= 7 && (
+            <span className="text-xs text-gray-400">
+              Approaching free plan limit
+            </span>
+          )}
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-6">
