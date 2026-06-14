@@ -1,10 +1,10 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { createClient } from '@/lib/supabase-browser'
 import { DEFAULT_RATE_CONFIGS } from '@/lib/pricing'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function SetupPage() {
+function SetupForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [form, setForm] = useState({ display_name:'', slug:'', bio:'', instagram_handle:'', tiktok_handle:'', youtube_handle:'', follower_count:'', engagement_rate:'' })
@@ -143,5 +143,17 @@ export default function SetupPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SetupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-sm text-gray-400">Loading…</p>
+      </div>
+    }>
+      <SetupForm />
+    </Suspense>
   )
 }
