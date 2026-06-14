@@ -1,16 +1,25 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-browser'
 import { DEFAULT_RATE_CONFIGS } from '@/lib/pricing'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function SetupPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [form, setForm] = useState({ display_name:'', slug:'', bio:'', instagram_handle:'', tiktok_handle:'', youtube_handle:'', follower_count:'', engagement_rate:'' })
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    const slugParam = searchParams.get('slug')
+    if (slugParam) {
+      const cleaned = slugParam.toLowerCase().replace(/[^a-z0-9-]/g, '')
+      setForm(f => ({ ...f, slug: cleaned }))
+    }
+  }, [searchParams])
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     const { name, value } = e.target
