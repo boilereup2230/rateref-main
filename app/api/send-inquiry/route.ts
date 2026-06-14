@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
-
 const resend = new Resend(process.env.RESEND_API_KEY)
-
 export async function POST(req: NextRequest) {
   try {
     const { creatorEmail, creatorName, brandName, contactEmail, message, total } = await req.json()
-
     await resend.emails.send({
       from: 'RateRef <notifications@rateref.co>',
       to: creatorEmail,
@@ -23,6 +20,25 @@ export async function POST(req: NextRequest) {
             <tr><td style="padding: 8px;"><strong>Message</strong></td><td style="padding: 8px;">${message || 'No message provided'}</td></tr>
           </table>
           <a href="https://rateref.co/dashboard" style="background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">View in Dashboard</a>
+          <p style="margin-top: 24px; color: #666; font-size: 14px;">— The RateRef Team</p>
+        </div>
+      `
+    })
+
+    await resend.emails.send({
+      from: 'RateRef <notifications@rateref.co>',
+      to: contactEmail,
+      subject: `Your booking request to ${creatorName} has been sent`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #111;">Your inquiry was sent!</h2>
+          <p>Hi ${brandName},</p>
+          <p>Your booking request to <strong>${creatorName}</strong> has been sent successfully. They'll be in touch within 48 hours.</p>
+          <table style="width: 100%; border-collapse: collapse; margin: 24px 0;">
+            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Creator</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${creatorName}</td></tr>
+            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Quote Total</strong></td><td style="padding: 8px; border-bottom: 1px solid #eee;">${total}</td></tr>
+            <tr><td style="padding: 8px;"><strong>Your Message</strong></td><td style="padding: 8px;">${message || 'No message provided'}</td></tr>
+          </table>
           <p style="margin-top: 24px; color: #666; font-size: 14px;">— The RateRef Team</p>
         </div>
       `
