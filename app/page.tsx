@@ -66,12 +66,11 @@ export default function LandingPage() {
             <span className="pill"><span className="dot"/>&nbsp;Free to start · No credit card</span>
           </div>
           <h1 className="hero-text hero-title" style={{fontSize:72,fontWeight:900,lineHeight:1.05,letterSpacing:'-.03em',marginBottom:24,color:'#f5f0e8'}}>
-            Replace your<br/>
-            <em style={{background:'linear-gradient(135deg,#f5f0e8 0%,#10b981 100%)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>media kit</em>
-            <br/>with a live link.
+            Stop emailing your rates.<br/>
+            Let brands <em style={{background:'linear-gradient(135deg,#f5f0e8 0%,#10b981 100%)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>book instantly.</em>
           </h1>
           <p className="body-text" style={{fontSize:20,color:'#9ca3af',maxWidth:560,margin:'0 auto 40px',lineHeight:1.6,fontWeight:300}}>
-            RateRef gives you a live, shareable rate card link. Brands click it, build their campaign quote in real time, and submit a booking request — no emails, no spreadsheets, no back-and-forth.
+            Paste your RateRef link in your bio or email signature. Brands select deliverables, see real-time pricing with add-ons like exclusivity and whitelisting, and submit a firm booking request. Zero back-and-forth.
           </p>
           <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:12,flexWrap:'wrap'}}>
             <a href="/login" className="cta-btn">Create your free rate card →</a>
@@ -211,7 +210,7 @@ export default function LandingPage() {
               <span className="hero-text" style={{fontSize:48,fontWeight:900}}>$0</span>
               <span className="body-text" style={{color:'#9ca3af',fontSize:15}}>/month</span>
             </div>
-            {['Full live rate card','Up to 10 inquiries/month','All post types & add-ons','Booking request dashboard','"Powered by RateRef" footer'].map((f,i) => (
+            {['Full live rate card','Unlimited inquiries','All post types & add-ons','Booking request dashboard','"Powered by RateRef" footer'].map((f,i) => (
               <div key={i} style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
                 <span style={{color:'#10b981',fontSize:14}}>✓</span>
                 <span className="body-text" style={{color:'#9ca3af',fontSize:14}}>{f}</span>
@@ -226,7 +225,7 @@ export default function LandingPage() {
               <span className="hero-text" style={{fontSize:48,fontWeight:900}}>$19</span>
               <span className="body-text" style={{color:'#9ca3af',fontSize:15}}>/month</span>
             </div>
-            {['Everything in free','Unlimited inquiries','Remove RateRef footer','Rate analytics & insights','Multiple platform configs'].map((f,i) => (
+            {['Everything in free','Remove RateRef footer','Custom usage & licensing terms','Rate analytics & insights','Multiple platform configs'].map((f,i) => (
               <div key={i} style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
                 <span style={{color:'#10b981',fontSize:14}}>✓</span>
                 <span className="body-text" style={{color:'#9ca3af',fontSize:14}}>{f}</span>
@@ -255,7 +254,7 @@ export default function LandingPage() {
           <div style={{width:28,height:28,background:'#059669',borderRadius:6,display:'flex',alignItems:'center',justifyContent:'center'}}>
             <span style={{color:'#fff',fontWeight:700,fontSize:11,fontFamily:'DM Sans,sans-serif'}}>RR</span>
           </div>
-          <span className="hero-text" style={{fontSize:16,fontWeight:700}}>RateRef</span>
+          <span className="hero-text" style={{fontSize:16,fontWeight:700,letterSpacing:'-.01em'}}>RateRef</span>
         </div>
         <p className="body-text" style={{color:'#374151',fontSize:13}}>The live rate card for creators who do brand deals.</p>
         <div style={{display:'flex',gap:20,alignItems:'center'}}>
