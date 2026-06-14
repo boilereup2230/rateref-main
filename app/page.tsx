@@ -1,4 +1,13 @@
+'use client'
+import { useState } from 'react'
+
 export default function LandingPage() {
+  const [slugInput, setSlugInput] = useState('')
+
+  function handleSlugChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setSlugInput(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))
+  }
+
   return (
     <div style={{margin:0,padding:0,fontFamily:"'Georgia', 'Times New Roman', serif",background:'#0a0a0a',color:'#f5f0e8',minHeight:'100vh',overflowX:'hidden'}}>
       <style>{`
@@ -33,12 +42,20 @@ export default function LandingPage() {
         .glow{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
         .beacons-bar{background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:10px;padding:12px 20px;display:inline-flex;align-items:center;gap:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:#9ca3af;margin-top:16px}
         .beacons-bar span{color:#6ee7b7;font-weight:500}
+        .claim-box{display:flex;align-items:center;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:4px;max-width:480px;margin:0 auto;transition:border-color .2s}
+        .claim-box:focus-within{border-color:rgba(16,185,129,0.4)}
+        .claim-prefix{font-family:'DM Sans',sans-serif;font-size:15px;color:#6b7280;padding:0 0 0 16px;white-space:nowrap}
+        .claim-input{flex:1;background:transparent;border:none;outline:none;color:#f5f0e8;font-family:'DM Sans',sans-serif;font-size:15px;padding:14px 8px;min-width:0}
+        .claim-input::placeholder{color:#4b5563}
         @media(max-width:768px){
           .hero-title{font-size:42px !important}
           .nav-links{display:none}
           .features-grid{grid-template-columns:1fr !important}
           .steps-grid{grid-template-columns:1fr !important}
           .pricing-grid{grid-template-columns:1fr !important}
+          .claim-box{flex-direction:column;align-items:stretch;background:transparent;border:none;padding:0;gap:8px}
+          .claim-prefix{display:none}
+          .claim-input{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px 16px}
         }
       `}</style>
 
@@ -72,8 +89,23 @@ export default function LandingPage() {
           <p className="body-text" style={{fontSize:20,color:'#9ca3af',maxWidth:560,margin:'0 auto 40px',lineHeight:1.6,fontWeight:300}}>
             Paste your RateRef link in your bio or email signature. Brands select deliverables, see real-time pricing with add-ons like exclusivity and whitelisting, and submit a firm booking request. Zero back-and-forth.
           </p>
-          <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:12,flexWrap:'wrap'}}>
-            <a href="/login" className="cta-btn">Create your free rate card →</a>
+
+          <div className="claim-box">
+            <span className="claim-prefix">rateref.co/c/</span>
+            <input
+              type="text"
+              className="claim-input"
+              placeholder="yourname"
+              value={slugInput}
+              onChange={handleSlugChange}
+              maxLength={30}
+            />
+            <a href={`/setup?slug=${slugInput}`} className="cta-btn" style={{flexShrink:0,padding:'12px 24px',fontSize:15}}>
+              Claim this link →
+            </a>
+          </div>
+
+          <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:12,flexWrap:'wrap',marginTop:16}}>
             <a href="#how" className="cta-secondary">See how it works ↓</a>
           </div>
           <div style={{display:'flex',justifyContent:'center',marginTop:16}}>
