@@ -110,8 +110,12 @@ export default function RateCardClient({ profile, rateConfigs }: Props) {
       <div className="max-w-xl mx-auto px-4 py-8 pb-16">
 
         <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4 flex items-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 font-semibold text-lg flex-shrink-0">
-            {initials}
+          <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 font-semibold text-lg flex-shrink-0 overflow-hidden">
+            {profile.avatar_url ? (
+              <img src={profile.avatar_url} alt={profile.display_name} className="w-full h-full object-cover" />
+            ) : (
+              initials
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
