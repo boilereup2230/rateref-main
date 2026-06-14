@@ -9,6 +9,7 @@ export function createClient() {
 
 export interface Profile {
   id: string
+  email: string | null
   display_name: string
   slug: string
   bio: string | null
