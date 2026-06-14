@@ -214,20 +214,13 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
         <div className="bg-white rounded-2xl border border-gray-200 p-4 mb-6 flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-gray-900">
-              {monthlyInquiryCount} / 10 inquiries this month
+              {monthlyInquiryCount} inquir{monthlyInquiryCount === 1 ? 'y' : 'ies'} this month
             </p>
-            <p className="text-xs text-gray-400 mt-0.5">Free plan resets monthly</p>
+            <p className="text-xs text-gray-400 mt-0.5">Unlimited on every plan</p>
           </div>
-          {monthlyInquiryCount >= 10 && (
-            <span className="text-xs font-medium bg-amber-50 text-amber-700 px-3 py-1.5 rounded-full">
-              Pro ($19/mo) coming soon — unlimited inquiries
-            </span>
-          )}
-          {monthlyInquiryCount < 10 && monthlyInquiryCount >= 7 && (
-            <span className="text-xs text-gray-400">
-              Approaching free plan limit
-            </span>
-          )}
+          <span className="text-xs font-medium bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full">
+            Pro ($19/mo) coming soon — remove footer branding
+          </span>
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-6">
