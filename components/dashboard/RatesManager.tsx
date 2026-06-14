@@ -12,7 +12,17 @@ interface Props {
 
 type Tab = 'rates' | 'inquiries' | 'settings'
 
-export default function RatesManager({ profile, rateConfigs: initial, inquiries }: Props) {
+const STATUS_OPTIONS = ['new', 'contacted', 'booked', 'declined'] as const
+type Status = typeof STATUS_OPTIONS[number]
+
+const STATUS_STYLES: Record<Status, string> = {
+  new:       'bg-blue-50 text-blue-700',
+  contacted: 'bg-amber-50 text-amber-700',
+  booked:    'bg-emerald-50 text-emerald-700',
+  declined:  'bg-gray-100 text-gray-500',
+}
+
+export default function RatesManager({ profile, rateConfigs: initial, inquiries: initialInquiries }: Props) {
   const supabase    = createClient()
   const [tab, setTab]           = useState<Tab>('rates')
   const [configs, setConfigs]   = useState(initial)
@@ -24,6 +34,10 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
 
   const [followers,  setFollowers]  = useState(String(profile.follower_count))
   const [engagement, setEngagement] = useState(String(profile.engagement_rate))
+
+  // Inquiries state (local copy so status updates reflect immediately)
+  const [inquiries, setInquiries] = useState(initialInquiries)
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
 
   // Profile settings state
   const [displayName, setDisplayName]   = useState(profile.display_name ?? '')
@@ -79,6 +93,18 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     })
+  }
+
+  async function handleStatusChange(inquiryId: string, newStatus: Status) {
+    setUpdatingId(inquiryId)
+    const { error } = await supabase.from('inquiries')
+      .update({ status: newStatus })
+      .eq('id', inquiryId)
+
+    if (!error) {
+      setInquiries(prev => prev.map(inq => inq.id === inquiryId ? { ...inq, status: newStatus } : inq))
+    }
+    setUpdatingId(null)
   }
 
   async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -293,33 +319,40 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
                 </div>
               </div>
             )}
-            {inquiries.map(inq => (
-              <div key={inq.id} className="bg-white rounded-2xl border border-gray-200 p-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="font-medium text-gray-900 text-sm">{inq.brand_name}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{inq.contact_email}</p>
-                    {inq.message && <p className="text-sm text-gray-600 mt-2">{inq.message}</p>}
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {inq.selected_post_types.map(pt => (
-                        <span key={pt} className="px-2 py-0.5 bg-gray-100 rounded-full text-xs text-gray-600">{pt}</span>
-                      ))}
+            {inquiries.map(inq => {
+              const status = (inq.status as Status) ?? 'new'
+              return (
+                <div key={inq.id} className="bg-white rounded-2xl border border-gray-200 p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="font-medium text-gray-900 text-sm">{inq.brand_name}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{inq.contact_email}</p>
+                      {inq.message && <p className="text-sm text-gray-600 mt-2">{inq.message}</p>}
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {inq.selected_post_types.map(pt => (
+                          <span key={pt} className="px-2 py-0.5 bg-gray-100 rounded-full text-xs text-gray-600">{pt}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="font-medium text-gray-900 text-sm">{formatCents(inq.quoted_total_cents)}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {new Date(inq.created_at).toLocaleDateString()}
+                      </p>
+                      <select
+                        value={status}
+                        disabled={updatingId === inq.id}
+                        onChange={e => handleStatusChange(inq.id, e.target.value as Status)}
+                        className={`mt-2 inline-block px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:outline-none focus:ring-1 focus:ring-emerald-500 ${STATUS_STYLES[status]}`}>
+                        {STATUS_OPTIONS.map(opt => (
+                          <option key={opt} value={opt}>{opt.charAt(0).toUpperCase() + opt.slice(1)}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className="font-medium text-gray-900 text-sm">{formatCents(inq.quoted_total_cents)}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {new Date(inq.created_at).toLocaleDateString()}
-                    </p>
-                    <span className={`mt-2 inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
-                      inq.status === 'new' ? 'bg-blue-50 text-blue-700' : 'bg-gray-100 text-gray-500'
-                    }`}>
-                      {inq.status}
-                    </span>
-                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
 
