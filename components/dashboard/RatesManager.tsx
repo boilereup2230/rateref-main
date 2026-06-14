@@ -19,7 +19,7 @@ const STATUS_STYLES: Record<Status, string> = {
   new:       'bg-blue-50 text-blue-700',
   contacted: 'bg-amber-50 text-amber-700',
   booked:    'bg-emerald-50 text-emerald-700',
-  declined:  'bg-gray-100 text-gray-500',
+  declined:  'bg-red-50 text-red-700',
 }
 
 export default function RatesManager({ profile, rateConfigs: initial, inquiries: initialInquiries }: Props) {
