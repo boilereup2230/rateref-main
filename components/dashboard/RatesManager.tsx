@@ -25,6 +25,18 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
   const [followers,  setFollowers]  = useState(String(profile.follower_count))
   const [engagement, setEngagement] = useState(String(profile.engagement_rate))
 
+  // Profile settings state
+  const [displayName, setDisplayName]   = useState(profile.display_name ?? '')
+  const [bio, setBio]                   = useState(profile.bio ?? '')
+  const [instagramHandle, setInstagramHandle] = useState(profile.instagram_handle ?? '')
+  const [tiktokHandle, setTiktokHandle]       = useState(profile.tiktok_handle ?? '')
+  const [youtubeHandle, setYoutubeHandle]     = useState(profile.youtube_handle ?? '')
+  const [avatarUrl, setAvatarUrl]       = useState<string | null>(profile.avatar_url ?? null)
+  const [uploading, setUploading]       = useState(false)
+  const [profileSaving, startProfileSave] = useTransition()
+  const [profileSaved, setProfileSaved] = useState(false)
+  const [profileError, setProfileError] = useState('')
+
   function updateConfig(id: string, patch: Partial<RateConfigRow>) {
     setConfigs(cs => cs.map(c => c.id === id ? { ...c, ...patch } : c))
     setDirty(d => new Set(d).add(id))
@@ -66,6 +78,69 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
       setMetricsDirty(false)
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
+    })
+  }
+
+  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    setProfileError('')
+
+    const fileExt  = file.name.split('.').pop()
+    const filePath = `${profile.id}/avatar.${fileExt}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(filePath, file, { upsert: true })
+
+    if (uploadError) {
+      setProfileError(`Upload failed: ${uploadError.message}`)
+      setUploading(false)
+      return
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(filePath)
+
+    const newAvatarUrl = `${publicUrlData.publicUrl}?t=${Date.now()}`
+
+    const { error: updateError } = await supabase
+      .from('profiles')
+      .update({ avatar_url: newAvatarUrl })
+      .eq('id', profile.id)
+
+    if (updateError) {
+      setProfileError(`Saved image but failed to update profile: ${updateError.message}`)
+    } else {
+      setAvatarUrl(newAvatarUrl)
+      setProfileSaved(true)
+      setTimeout(() => setProfileSaved(false), 3000)
+    }
+
+    setUploading(false)
+  }
+
+  function handleProfileSave() {
+    setProfileError('')
+    startProfileSave(async () => {
+      const { error } = await supabase.from('profiles').update({
+        display_name:     displayName,
+        bio:               bio,
+        instagram_handle:  instagramHandle,
+        tiktok_handle:     tiktokHandle,
+        youtube_handle:    youtubeHandle,
+      }).eq('id', profile.id)
+
+      if (error) {
+        setProfileError('Save failed — please try again.')
+        return
+      }
+
+      setProfileSaved(true)
+      setTimeout(() => setProfileSaved(false), 3000)
     })
   }
 
@@ -249,23 +324,96 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries 
         )}
 
         {tab === 'settings' && (
-          <div className="bg-white rounded-2xl border border-gray-200 p-6">
-            <p className="text-sm font-medium text-gray-700 mb-4">Your public link</p>
-            <div className="flex items-center gap-2 mb-6">
-              <input readOnly value={publicUrl}
-                className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600" />
-              <button onClick={() => navigator.clipboard.writeText(publicUrl)}
-                className="px-3 py-2 rounded-lg border border-gray-200 text-sm hover:bg-gray-50">
-                Copy
-              </button>
-              <a href={publicUrl} target="_blank"
-                className="px-3 py-2 rounded-lg border border-gray-200 text-sm hover:bg-gray-50">
-                Open ↗
-              </a>
+          <div className="space-y-6">
+
+            {/* Profile section */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+              <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-4">
+                Public profile
+              </p>
+
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-16 h-16 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0 border border-gray-200">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-xs text-gray-400">No photo</span>
+                  )}
+                </div>
+                <div>
+                  <label className="inline-block px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 cursor-pointer">
+                    {uploading ? 'Uploading…' : 'Upload photo'}
+                    <input type="file" accept="image/*" onChange={handleAvatarUpload}
+                      disabled={uploading} className="hidden" />
+                  </label>
+                  <p className="text-xs text-gray-400 mt-1">Shown on your public rate card</p>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="text-xs text-gray-500 mb-1 block">Display name</label>
+                <input value={displayName} onChange={e => setDisplayName(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+              </div>
+
+              <div className="mb-4">
+                <label className="text-xs text-gray-500 mb-1 block">Bio</label>
+                <textarea value={bio} onChange={e => setBio(e.target.value)} rows={3}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none" />
+              </div>
+
+              <div className="grid grid-cols-3 gap-3 mb-2">
+                <div>
+                  <label className="text-xs text-gray-500 mb-1 block">Instagram</label>
+                  <input value={instagramHandle} onChange={e => setInstagramHandle(e.target.value)}
+                    placeholder="handle"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500 mb-1 block">TikTok</label>
+                  <input value={tiktokHandle} onChange={e => setTiktokHandle(e.target.value)}
+                    placeholder="handle"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500 mb-1 block">YouTube</label>
+                  <input value={youtubeHandle} onChange={e => setYoutubeHandle(e.target.value)}
+                    placeholder="handle"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-4">
+                {profileError && <p className="text-sm text-red-600">{profileError}</p>}
+                {profileSaved && !profileError && <p className="text-sm text-emerald-600">✓ Saved</p>}
+                {!profileError && !profileSaved && <span />}
+                <button onClick={handleProfileSave} disabled={profileSaving}
+                  className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-40 transition-colors">
+                  {profileSaving ? 'Saving…' : 'Save profile'}
+                </button>
+              </div>
             </div>
-            <p className="text-xs text-gray-400">
-              Share this link in your Instagram bio, email signature, or DMs. Brands will see your live rates and can submit booking requests directly.
-            </p>
+
+            {/* Public link section */}
+            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+              <p className="text-sm font-medium text-gray-700 mb-4">Your public link</p>
+              <div className="flex items-center gap-2 mb-6">
+                <input readOnly value={publicUrl}
+                  className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600" />
+                <button onClick={() => navigator.clipboard.writeText(publicUrl)}
+                  className="px-3 py-2 rounded-lg border border-gray-200 text-sm hover:bg-gray-50">
+                  Copy
+                </button>
+                <a href={publicUrl} target="_blank"
+                  className="px-3 py-2 rounded-lg border border-gray-200 text-sm hover:bg-gray-50">
+                  Open ↗
+                </a>
+              </div>
+              <p className="text-xs text-gray-400">
+                Share this link in your Instagram bio, email signature, or DMs. Brands will see your live rates and can submit booking requests directly.
+              </p>
+            </div>
+
           </div>
         )}
       </div>
