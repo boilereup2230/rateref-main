@@ -19,7 +19,7 @@ export default function LandingPage() {
         .pill{display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#6ee7b7;padding:6px 14px;border-radius:100px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;letter-spacing:.02em}
         .dot{width:7px;height:7px;border-radius:50%;background:#10b981;animation:pulse 2s infinite}
         @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.2)}}
-        .cta-btn{display:inline-flex;align-items:center;gap:8px;background:#059669;color:#fff;padding:16px 32px;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;text-decoration:none;transition:all .2s;border:none;cursor:pointer;letter-spacing:.01em}
+        .cta-btn{display:inline-flex;align-items:center;gap:8px;background:#059669;color:#fff;padding:16px 32px;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;text-decoration:none;transition:all .2s;border:none;cursor:pointer;letter-spacing:.01em;white-space:nowrap}
         .cta-btn:hover{background:#047857;transform:translateY(-1px);box-shadow:0 8px 24px rgba(5,150,105,0.3)}
         .cta-secondary{display:inline-flex;align-items:center;gap:8px;color:#9ca3af;padding:16px 24px;font-family:'DM Sans',sans-serif;font-size:15px;text-decoration:none;transition:color .2s}
         .cta-secondary:hover{color:#f5f0e8}
@@ -47,9 +47,12 @@ export default function LandingPage() {
         .claim-prefix{font-family:'DM Sans',sans-serif;font-size:15px;color:#6b7280;padding:0 0 0 16px;white-space:nowrap}
         .claim-input{flex:1;background:transparent;border:none;outline:none;color:#f5f0e8;font-family:'DM Sans',sans-serif;font-size:15px;padding:14px 8px;min-width:0}
         .claim-input::placeholder{color:#4b5563}
+        .navbar{padding:20px 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.06);position:sticky;top:0;background:rgba(10,10,10,0.9);backdrop-filter:blur(12px);z-index:50}
+        .nav-links{display:flex;gap:32px}
         @media(max-width:768px){
           .hero-title{font-size:42px !important}
           .nav-links{display:none}
+          .navbar{padding:16px 20px}
           .features-grid{grid-template-columns:1fr !important}
           .steps-grid{grid-template-columns:1fr !important}
           .pricing-grid{grid-template-columns:1fr !important}
@@ -62,14 +65,14 @@ export default function LandingPage() {
       <div className="glow" style={{width:600,height:600,background:'rgba(5,150,105,0.08)',top:-200,left:-200,position:'absolute'}} />
       <div className="glow" style={{width:400,height:400,background:'rgba(16,185,129,0.05)',top:400,right:-100,position:'absolute'}} />
 
-      <nav style={{padding:'20px 40px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:'1px solid rgba(255,255,255,0.06)',position:'sticky',top:0,background:'rgba(10,10,10,0.9)',backdropFilter:'blur(12px)',zIndex:50}}>
+      <nav className="navbar">
         <div style={{display:'flex',alignItems:'center',gap:8}}>
-          <div style={{width:32,height:32,background:'#059669',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <div style={{width:32,height:32,background:'#059669',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
             <span style={{color:'#fff',fontWeight:700,fontSize:13,fontFamily:'DM Sans,sans-serif'}}>RR</span>
           </div>
           <span className="hero-text" style={{fontSize:18,fontWeight:700,letterSpacing:'-.01em'}}>RateRef</span>
         </div>
-        <div className="nav-links" style={{display:'flex',gap:32}}>
+        <div className="nav-links">
           <a href="#how" className="nav-link">How it works</a>
           <a href="#why" className="nav-link">Why RateRef</a>
           <a href="#pricing" className="nav-link">Pricing</a>
