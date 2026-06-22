@@ -1,12 +1,4 @@
-'use client'
-import { useState } from 'react'
-
 export default function LandingPage() {
-  const [slugInput, setSlugInput] = useState('')
-
-  function handleSlugChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setSlugInput(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))
-  }
 
   return (
     <div style={{margin:0,padding:0,fontFamily:"'Georgia', 'Times New Roman', serif",background:'#0a0a0a',color:'#f5f0e8',minHeight:'100vh',overflowX:'hidden'}}>
@@ -42,11 +34,6 @@ export default function LandingPage() {
         .glow{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
         .beacons-bar{background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:10px;padding:12px 20px;display:inline-flex;align-items:center;gap:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:#9ca3af;margin-top:16px}
         .beacons-bar span{color:#6ee7b7;font-weight:500}
-        .claim-box{display:flex;align-items:center;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:4px;max-width:480px;margin:0 auto;transition:border-color .2s}
-        .claim-box:focus-within{border-color:rgba(16,185,129,0.4)}
-        .claim-prefix{font-family:'DM Sans',sans-serif;font-size:15px;color:#6b7280;padding:0 0 0 16px;white-space:nowrap}
-        .claim-input{flex:1;background:transparent;border:none;outline:none;color:#f5f0e8;font-family:'DM Sans',sans-serif;font-size:15px;padding:14px 8px;min-width:0}
-        .claim-input::placeholder{color:#4b5563}
         .navbar{padding:20px 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.06);position:sticky;top:0;background:rgba(10,10,10,0.9);backdrop-filter:blur(12px);z-index:50}
         .nav-links{display:flex;gap:32px}
         @media(max-width:768px){
@@ -56,9 +43,6 @@ export default function LandingPage() {
           .features-grid{grid-template-columns:1fr !important}
           .steps-grid{grid-template-columns:1fr !important}
           .pricing-grid{grid-template-columns:1fr !important}
-          .claim-box{flex-direction:column;align-items:stretch;background:transparent;border:none;padding:0;gap:8px}
-          .claim-prefix{display:none}
-          .claim-input{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px 16px}
         }
       `}</style>
 
@@ -93,19 +77,9 @@ export default function LandingPage() {
             Paste your RateRef link in your bio or email signature. Brands select deliverables, see real-time pricing with add-ons like exclusivity and whitelisting, and submit a firm booking request. Zero back-and-forth.
           </p>
 
-          <div className="claim-box">
-            <span className="claim-prefix">rateref.co/c/</span>
-            <input
-              type="text"
-              className="claim-input"
-              placeholder="yourname"
-              value={slugInput}
-              onChange={handleSlugChange}
-              maxLength={30}
-            />
-            <a href={`/setup?slug=${slugInput}`} className="cta-btn" style={{flexShrink:0,padding:'12px 24px',fontSize:15}}>
-              Claim this link →
-            </a>
+          <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:12}}>
+            <a href="/setup" className="cta-btn" style={{fontSize:17,padding:'18px 40px'}}>Create your free rate card →</a>
+            <p className="body-text" style={{color:'#4b5563',fontSize:13}}>Takes 3 minutes · Free forever · No credit card</p>
           </div>
 
           <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:12,flexWrap:'wrap',marginTop:16}}>
@@ -116,7 +90,6 @@ export default function LandingPage() {
               <span>✓</span> Already on Beacons or Linktree? Just add your RateRef link as a <span>"Brand partnerships"</span> button. 30 seconds.
             </div>
           </div>
-          <p className="body-text" style={{color:'#4b5563',fontSize:13,marginTop:12}}>Takes 3 minutes · Free forever on the free tier</p>
         </div>
 
         <div style={{maxWidth:420,margin:'0 auto'}}>
@@ -219,7 +192,7 @@ export default function LandingPage() {
             {icon:'🔄',title:'Live rates, always current',desc:'Unlike a PDF that goes stale the moment your metrics change, your RateRef card always shows your latest rates. Update your metrics in seconds anytime from your dashboard.'},
             {icon:'📊',title:'Real-time quote builder',desc:'Brands select exactly what they want — Reels, Stories, TikToks — and see a live campaign total build in real time. They show up to your inbox knowing the number.'},
             {icon:'➕',title:'Add-ons built in',desc:'Whitelisting (+20%), exclusivity (+30%), and rush fees (+15%) are standard options on every card. No more negotiating these separately.'},
-            {icon:'📥',title:'Inquiry dashboard',desc:'Every booking request comes with the brand\'s name, email, campaign brief, and the exact quote they saw. Everything you need to respond fast.'},
+            {icon:'📥',title:'Inquiry dashboard',desc:"Every booking request comes with the brand's name, email, campaign brief, and the exact quote they saw. Everything you need to respond fast."},
             {icon:'🔗',title:'One link does everything',desc:'Add your RateRef link to your Beacons page, email signature, or anywhere you talk to brands. Your media kit, rate sheet, and booking form all in one place.'},
           ].map((f,i) => (
             <div key={i} className="feature-card">
