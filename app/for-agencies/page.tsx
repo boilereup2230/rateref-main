@@ -1,17 +1,4 @@
-'use client'
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-
 export default function ForAgenciesPage() {
-  const [slugInput, setSlugInput] = useState('')
-  const router = useRouter()
-
-  function handleClaim(e: React.FormEvent) {
-    e.preventDefault()
-    if (slugInput.trim()) {
-      router.push(`/setup?slug=${slugInput.trim()}`)
-    }
-  }
 
   return (
     <div style={{ margin: 0, padding: 0, fontFamily: "'Georgia', 'Times New Roman', serif", background: '#0a0a0a', color: '#f5f0e8', minHeight: '100vh', overflowX: 'hidden' }}>
@@ -33,11 +20,6 @@ export default function ForAgenciesPage() {
         .nav-link.active { color: #10b981; }
         .nil-callout { background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.2); border-radius: 16px; padding: 28px; }
         .step-num { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 900; color: rgba(16,185,129,0.15); line-height: 1; margin-bottom: 12px; }
-        .claim-box { display: flex; align-items: center; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 4px; max-width: 480px; transition: border-color .2s; }
-        .claim-box:focus-within { border-color: rgba(16,185,129,0.4); }
-        .claim-prefix { font-family: 'DM Sans', sans-serif; font-size: 15px; color: #6b7280; padding: 0 0 0 16px; white-space: nowrap; }
-        .claim-input { flex: 1; background: transparent; border: none; outline: none; color: #f5f0e8; font-family: 'DM Sans', sans-serif; font-size: 15px; padding: 14px 8px; min-width: 0; }
-        .claim-input::placeholder { color: #4b5563; }
         .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-family: 'DM Sans', sans-serif; font-weight: 500; }
         .badge-green { background: rgba(16,185,129,0.15); color: #6ee7b7; }
         @media(max-width:768px) {
@@ -46,9 +28,6 @@ export default function ForAgenciesPage() {
           .hero-title { font-size: 42px !important; }
           .features-grid { grid-template-columns: 1fr !important; }
           .steps-grid { grid-template-columns: 1fr !important; }
-          .claim-box { flex-direction: column; align-items: stretch; background: transparent; border: none; padding: 0; gap: 8px; }
-          .claim-prefix { display: none; }
-          .claim-input { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 14px 16px; }
         }
       `}</style>
 
@@ -82,7 +61,7 @@ export default function ForAgenciesPage() {
           </p>
           <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
             <a href="/setup" className="cta-btn" style={{ fontSize: 17, padding: '18px 36px' }}>Set up your first talent free →</a>
-            <a href="/" className="body-text" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: '#9ca3af', padding: '18px 24px', fontSize: 15, textDecoration: 'none', transition: 'color .2s' }}>See how it works ↓</a>
+            <a href="/#how" className="body-text" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, color: '#9ca3af', padding: '18px 24px', fontSize: 15, textDecoration: 'none', transition: 'color .2s' }}>See how it works ↓</a>
           </div>
           <p className="body-text" style={{ color: '#374151', fontSize: 13, marginTop: 16 }}>Free forever on the free tier · No credit card · Takes 2 minutes per talent</p>
         </div>
@@ -234,23 +213,10 @@ export default function ForAgenciesPage() {
         <p className="body-text" style={{ color: '#9ca3af', fontSize: 18, marginBottom: 40, lineHeight: 1.6, fontWeight: 300 }}>
           Set up your first talent's rate card in 2 minutes. Free forever. No catch.
         </p>
-        <form onSubmit={handleClaim} style={{ maxWidth: 480, margin: '0 auto 16px' }}>
-          <div className="claim-box">
-            <span className="claim-prefix body-text">rateref.co/c/</span>
-            <input
-              type="text"
-              className="claim-input"
-              placeholder="talentname"
-              value={slugInput}
-              onChange={e => setSlugInput(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-              maxLength={30}
-            />
-            <button type="submit" className="cta-btn" style={{ flexShrink: 0, padding: '12px 24px', fontSize: 15 }}>
-              Claim →
-            </button>
-          </div>
-        </form>
-        <p className="body-text" style={{ color: '#374151', fontSize: 13 }}>Takes 2 minutes · Free forever · No credit card</p>
+        <a href="/setup" className="cta-btn" style={{ fontSize: 17, padding: '18px 40px' }}>
+          Set up your first talent free →
+        </a>
+        <p className="body-text" style={{ color: '#374151', fontSize: 13, marginTop: 16 }}>Takes 2 minutes · Free forever · No credit card</p>
       </section>
 
       {/* Footer */}
