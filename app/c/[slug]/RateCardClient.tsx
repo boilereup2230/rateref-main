@@ -32,6 +32,7 @@ export default function RateCardClient({ profile, rateConfigs }: Props) {
   const [sending,   setSending]   = useState(false)
   const [error,     setError]     = useState('')
   const [isOwner,   setIsOwner]   = useState(false)
+  const [showBonusInfo, setShowBonusInfo] = useState(false)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -75,7 +76,6 @@ export default function RateCardClient({ profile, rateConfigs }: Props) {
       return
     }
 
-    // Send notification email to creator
     await fetch('/api/send-inquiry', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -151,9 +151,21 @@ export default function RateCardClient({ profile, rateConfigs }: Props) {
 
         <div className="grid grid-cols-3 gap-3 mb-4">
           <StatTile value={formatFollowers(profile.follower_count)} label="Followers" />
-          <StatTile value={`${profile.engagement_rate.toFixed(1)}%`} label="Engagement" highlight={profile.engagement_rate >= 3} />
+          <StatTile
+            value={`${profile.engagement_rate.toFixed(1)}%`}
+            label="Engagement"
+            highlight={profile.engagement_rate >= 3}
+            onInfoClick={profile.engagement_rate >= 3 ? () => setShowBonusInfo(v => !v) : undefined}
+          />
           <StatTile value={`${Math.round(profile.follower_count * profile.engagement_rate / 100).toLocaleString()}`} label="Est. reach" />
         </div>
+
+        {showBonusInfo && (
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 mb-4 text-xs text-emerald-800 leading-relaxed">
+            <strong>⚡ What is Bonus Tier pricing?</strong><br/>
+            This creator's engagement rate exceeds 3%, meaning their audience is significantly more active than average. Bonus tier pricing applies a 1.5× multiplier to base rates — reflecting the higher commercial value of a genuinely engaged audience vs. follower count alone. Industry standard: engagement above 3% is considered high-performing for brand partnerships.
+          </div>
+        )}
 
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
           <div className="px-5 py-3.5 border-b border-gray-100">
@@ -174,7 +186,14 @@ export default function RateCardClient({ profile, rateConfigs }: Props) {
                 </div>
                 <div className="text-right flex-shrink-0">
                   <p className="text-sm font-semibold text-gray-900">{result.priceFormatted}</p>
-                  {result.bonusApplied && !result.isManualOverride && <p className="text-xs text-emerald-600 mt-0.5">⚡ Bonus tier</p>}
+                  {result.bonusApplied && !result.isManualOverride && (
+                    <button
+                      type="button"
+                      onClick={e => { e.stopPropagation(); setShowBonusInfo(v => !v) }}
+                      className="text-xs text-emerald-600 mt-0.5 hover:text-emerald-700 hover:underline">
+                      ⚡ Bonus tier
+                    </button>
+                  )}
                 </div>
               </button>
             )
@@ -272,12 +291,19 @@ export default function RateCardClient({ profile, rateConfigs }: Props) {
   )
 }
 
-function StatTile({ value, label, highlight }: { value: string; label: string; highlight?: boolean }) {
+function StatTile({ value, label, highlight, onInfoClick }: { value: string; label: string; highlight?: boolean; onInfoClick?: () => void }) {
   return (
     <div className="bg-white rounded-xl border border-gray-200 px-3 py-3 text-center">
       <p className={`text-lg font-semibold ${highlight ? 'text-emerald-600' : 'text-gray-900'}`}>{value}</p>
       <p className="text-xs text-gray-400 mt-0.5">{label}</p>
-      {highlight && <p className="text-xs text-emerald-500 mt-0.5">⚡ Bonus tier</p>}
+      {highlight && (
+        <button
+          type="button"
+          onClick={onInfoClick}
+          className="text-xs text-emerald-500 mt-0.5 hover:text-emerald-700 hover:underline cursor-pointer">
+          ⚡ Bonus tier
+        </button>
+      )}
     </div>
   )
 }
