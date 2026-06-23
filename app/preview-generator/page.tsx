@@ -92,8 +92,8 @@ export default function PreviewGenerator() {
             </div>
             <div>
               <label style={s.label}>ENGAGEMENT % *</label>
-              <input type="number" step="0.1" value={engagement} onChange={e => setEngagement(e.target.value)} placeholder="4.1" style={{ ...s.input, marginBottom: '0' }} />
-              <p style={s.hint}>e.g. 4.1 for 4.1%</p>
+              <input type="number" step="0.1" value={engagement} onChange={e => setEngagement(e.target.value)} placeholder="e.g. 3.5" style={{ ...s.input, marginBottom: '0' }} />
+              <p style={s.hint}>e.g. 3.5 for 3.5%</p>
             </div>
           </div>
 
@@ -122,9 +122,13 @@ export default function PreviewGenerator() {
               <a href={generated} target="_blank" rel="noreferrer" style={s.previewLink}>Preview →</a>
             </div>
             <div style={s.divider}>
-              <p style={s.dmLabel}>READY-TO-SEND DM SCRIPT</p>
+              <p style={s.dmLabel}>EMAIL / LONG-FORM SCRIPT</p>
               <div style={s.dmBox}>
                 Hey {firstName}! I noticed you handle brand deals directly — wanted to put something on your radar. I went ahead and built a free rate card for you: {generated} — Brands can click it, see your pricing, and book you directly. Completely free to claim, takes 2 minutes!
+              </div>
+              <p style={{ ...s.dmLabel, marginTop: '16px' }}>INSTAGRAM DM SCRIPT (short)</p>
+              <div style={s.dmBox}>
+                Hey {firstName}! Built a free rate card preview for you based on your public stats — curious what you think: {generated}
               </div>
             </div>
           </div>
