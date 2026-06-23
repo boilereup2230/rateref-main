@@ -79,15 +79,15 @@ export default function PreviewGenerator() {
 
         <div style={s.card}>
           <label style={s.label}>FULL NAME *</label>
-          <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Laura Brocato" style={s.input} />
+          <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Creator Full Name" style={s.input} />
 
           <label style={s.label}>HANDLE (no @) *</label>
-          <input type="text" value={handle} onChange={e => setHandle(e.target.value.replace('@', ''))} placeholder="theicymom" style={s.input} />
+          <input type="text" value={handle} onChange={e => setHandle(e.target.value.replace('@', ''))} placeholder="creatorhandle" style={s.input} />
 
           <div style={s.grid2}>
             <div>
               <label style={s.label}>FOLLOWERS (numbers only) *</label>
-              <input type="number" value={followers} onChange={e => setFollowers(e.target.value)} placeholder="70000" style={{ ...s.input, marginBottom: '0' }} />
+              <input type="number" value={followers} onChange={e => setFollowers(e.target.value)} placeholder="e.g. 50000" style={{ ...s.input, marginBottom: '0' }} />
               <p style={s.hint}>No K or M</p>
             </div>
             <div>
