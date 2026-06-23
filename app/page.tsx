@@ -1,278 +1,212 @@
-export default function LandingPage() {
+'use client'
+
+import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
+
+function calculateRate(followers: number, engagement: number, multiplier: number): number {
+  const base = followers * 0.01 * multiplier
+  const engagementBonus = engagement >= 3 ? 1.5 : 1.0
+  return Math.round(base * engagementBonus)
+}
+
+function formatPrice(n: number): string {
+  return '$' + n.toLocaleString()
+}
+
+function formatFollowers(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`
+  return String(n)
+}
+
+const POST_TYPES = [
+  { key: 'reel', label: 'Instagram Reel', desc: '60-sec branded video', multiplier: 1.5 },
+  { key: 'story', label: 'Instagram Story', desc: '3-frame story set', multiplier: 0.6 },
+  { key: 'feed', label: 'Static Feed Post', desc: 'Single image or carousel', multiplier: 0.8 },
+  { key: 'tiktok', label: 'TikTok Video', desc: '30–60 second', multiplier: 1.2 },
+  { key: 'youtube', label: 'YouTube Integration', desc: '60-sec mid-roll mention', multiplier: 2.0 },
+]
+
+function PreviewContent() {
+  const params = useSearchParams()
+
+  const name = params.get('name') || 'Your Name'
+  const handle = params.get('handle') || 'yourcreatorname'
+  const followers = parseInt(params.get('followers') || '25000')
+  const engagement = parseFloat(params.get('engagement') || '3.5')
+  const platform = params.get('platform') || 'instagram'
+
+  const bonusApplied = engagement >= 3
+  const initials = name.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)
+  const slug = handle.replace('@', '').toLowerCase().replace(/[^a-z0-9-]/g, '')
+  const claimUrl = `/setup?slug=${slug}`
+
+  const visibleTypes = POST_TYPES.filter(pt => {
+    if (platform === 'instagram') return ['reel', 'story', 'feed'].includes(pt.key)
+    if (platform === 'tiktok') return ['tiktok', 'feed'].includes(pt.key)
+    if (platform === 'youtube') return ['youtube', 'feed'].includes(pt.key)
+    return true
+  })
+
+  const dmSans = { fontFamily: 'DM Sans, sans-serif' }
 
   return (
-    <div style={{margin:0,padding:0,fontFamily:"'Georgia', 'Times New Roman', serif",background:'#0a0a0a',color:'#f5f0e8',minHeight:'100vh',overflowX:'hidden'}}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&display=swap');
-        *{box-sizing:border-box;margin:0;padding:0}
-        body{background:#0a0a0a}
-        .hero-text{font-family:'Playfair Display',serif}
-        .body-text{font-family:'DM Sans',sans-serif}
-        .pill{display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#6ee7b7;padding:6px 14px;border-radius:100px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;letter-spacing:.02em}
-        .dot{width:7px;height:7px;border-radius:50%;background:#10b981;animation:pulse 2s infinite}
-        @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.2)}}
-        .cta-btn{display:inline-flex;align-items:center;gap:8px;background:#059669;color:#fff;padding:16px 32px;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;text-decoration:none;transition:all .2s;border:none;cursor:pointer;letter-spacing:.01em;white-space:nowrap}
-        .cta-btn:hover{background:#047857;transform:translateY(-1px);box-shadow:0 8px 24px rgba(5,150,105,0.3)}
-        .cta-secondary{display:inline-flex;align-items:center;gap:8px;color:#9ca3af;padding:16px 24px;font-family:'DM Sans',sans-serif;font-size:15px;text-decoration:none;transition:color .2s}
-        .cta-secondary:hover{color:#f5f0e8}
-        .feature-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:28px;transition:all .2s}
-        .feature-card:hover{background:rgba(255,255,255,0.06);border-color:rgba(16,185,129,0.2);transform:translateY(-2px)}
-        .step-num{font-family:'Playfair Display',serif;font-size:48px;font-weight:900;color:rgba(16,185,129,0.15);line-height:1;margin-bottom:12px}
-        .divider{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);margin:80px 0}
-        .mock-card{background:#111827;border:1px solid rgba(255,255,255,0.1);border-radius:16px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,0.6)}
-        .mock-header{background:#1f2937;padding:14px 18px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,0.06)}
-        .mock-dot{width:10px;height:10px;border-radius:50%}
-        .mock-row{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.05);transition:background .15s}
-        .mock-row:hover{background:rgba(16,185,129,0.04)}
-        .mock-check{width:18px;height:18px;border-radius:4px;border:1.5px solid rgba(255,255,255,0.2);margin-right:12px;flex-shrink:0}
-        .mock-check.checked{background:#059669;border-color:#059669;display:flex;align-items:center;justify-content:center}
-        .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500}
-        .badge-green{background:rgba(16,185,129,0.15);color:#6ee7b7}
-        .quote-card{background:#1f2937;border-radius:12px;padding:16px;margin-top:12px}
-        .nav-link{font-family:'DM Sans',sans-serif;font-size:14px;color:#9ca3af;text-decoration:none;transition:color .15s}
-        .nav-link:hover{color:#f5f0e8}
-        .glow{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
-        .beacons-bar{background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15);border-radius:10px;padding:12px 20px;display:inline-flex;align-items:center;gap:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:#9ca3af;margin-top:16px}
-        .beacons-bar span{color:#6ee7b7;font-weight:500}
-        .navbar{padding:20px 40px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.06);position:sticky;top:0;background:rgba(10,10,10,0.9);backdrop-filter:blur(12px);z-index:50}
-        .nav-links{display:flex;gap:32px}
-        @media(max-width:768px){
-          .hero-title{font-size:42px !important}
-          .nav-links{display:none}
-          .navbar{padding:16px 20px}
-          .features-grid{grid-template-columns:1fr !important}
-          .steps-grid{grid-template-columns:1fr !important}
-          .pricing-grid{grid-template-columns:1fr !important}
-        }
-      `}</style>
+    <div style={{ minHeight: '100vh', background: '#f9fafb', ...dmSans }}>
+      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
-      <div className="glow" style={{width:600,height:600,background:'rgba(5,150,105,0.08)',top:-200,left:-200,position:'absolute'}} />
-      <div className="glow" style={{width:400,height:400,background:'rgba(16,185,129,0.05)',top:400,right:-100,position:'absolute'}} />
-
-      <nav className="navbar">
-        <div style={{display:'flex',alignItems:'center',gap:8}}>
-          <div style={{width:32,height:32,background:'#059669',borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-            <span style={{color:'#fff',fontWeight:700,fontSize:13,fontFamily:'DM Sans,sans-serif'}}>RR</span>
-          </div>
-          <span className="hero-text" style={{fontSize:18,fontWeight:700,letterSpacing:'-.01em'}}>RateRef</span>
+      {/* Preview banner */}
+      <div style={{ background: '#1e40af', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ background: '#fbbf24', color: '#92400e', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 4, textTransform: 'uppercase' as const, letterSpacing: '.05em' }}>Preview</span>
+          <span style={{ color: '#bfdbfe', fontSize: 13 }}>
+            This is a preview of what your free RateRef rate card would look like.
+          </span>
         </div>
-        <div className="nav-links">
-          <a href="#how" className="nav-link">How it works</a>
-          <a href="#why" className="nav-link">Why RateRef</a>
-          <a href="#pricing" className="nav-link">Pricing</a>
-          <a href="/for-agencies" className="nav-link">For Agencies</a>
-        </div>
-        <a href="/login" className="cta-btn" style={{padding:'10px 20px',fontSize:14}}>Get started free →</a>
-      </nav>
+        <a href={claimUrl} style={{ background: '#10b981', color: '#fff', padding: '8px 18px', borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' as const }}>
+          Claim rateref.co/c/{slug} →
+        </a>
+      </div>
 
-      <section style={{padding:'100px 40px 80px',maxWidth:1100,margin:'0 auto',position:'relative'}}>
-        <div style={{textAlign:'center',marginBottom:64}}>
-          <div style={{display:'flex',justifyContent:'center',marginBottom:24}}>
-            <span className="pill"><span className="dot"/>&nbsp;Free to start · No credit card</span>
-          </div>
-          <h1 className="hero-text hero-title" style={{fontSize:72,fontWeight:900,lineHeight:1.05,letterSpacing:'-.03em',marginBottom:24,color:'#f5f0e8'}}>
-            Stop emailing your rates.<br/>
-            Let brands <em style={{background:'linear-gradient(135deg,#f5f0e8 0%,#10b981 100%)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>book instantly.</em>
-          </h1>
-          <p className="body-text" style={{fontSize:20,color:'#9ca3af',maxWidth:560,margin:'0 auto 40px',lineHeight:1.6,fontWeight:300}}>
-            Paste your RateRef link in your bio or email signature. Brands select deliverables, see real-time pricing with add-ons like exclusivity and whitelisting, and submit a firm booking request. Zero back-and-forth.
-          </p>
+      <div style={{ maxWidth: 520, margin: '0 auto', padding: '24px 16px 80px' }}>
 
-          <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:12}}>
-            <a href="/setup" className="cta-btn" style={{fontSize:17,padding:'18px 40px'}}>Create your free rate card →</a>
-            <p className="body-text" style={{color:'#4b5563',fontSize:13}}>Takes 3 minutes · Free forever · No credit card</p>
-          </div>
-
-          <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:12,flexWrap:'wrap',marginTop:16}}>
-            <a href="#how" className="cta-secondary">See how it works ↓</a>
-          </div>
-          <div style={{display:'flex',justifyContent:'center',marginTop:16}}>
-            <div className="beacons-bar">
-              <span>✓</span> Already on Beacons or Linktree? Just add your RateRef link as a <span>"Brand partnerships"</span> button. 30 seconds.
+        {/* Profile card */}
+        <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e5e7eb', padding: 20, marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #d1fae5, #a7f3d0)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#059669', fontWeight: 700, fontSize: 18, flexShrink: 0 }}>
+              {initials}
             </div>
-          </div>
-        </div>
-
-        <div style={{maxWidth:420,margin:'0 auto'}}>
-          <div className="mock-card">
-            <div className="mock-header">
-              <div className="mock-dot" style={{background:'#ef4444'}}/>
-              <div className="mock-dot" style={{background:'#f59e0b'}}/>
-              <div className="mock-dot" style={{background:'#10b981'}}/>
-              <span className="body-text" style={{color:'#6b7280',fontSize:12,marginLeft:8}}>rateref.co/c/saracreates</span>
-            </div>
-            <div style={{padding:'20px 18px 8px'}}>
-              <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
-                <div style={{width:44,height:44,borderRadius:'50%',background:'rgba(16,185,129,0.15)',display:'flex',alignItems:'center',justifyContent:'center',color:'#10b981',fontWeight:700,fontFamily:'DM Sans,sans-serif'}}>SC</div>
-                <div>
-                  <div style={{display:'flex',alignItems:'center',gap:6}}>
-                    <span style={{color:'#f5f0e8',fontWeight:600,fontSize:14,fontFamily:'DM Sans,sans-serif'}}>Sara Chen</span>
-                    <span className="badge badge-green">✓ Verified</span>
-                  </div>
-                  <div style={{display:'flex',gap:12,marginTop:2}}>
-                    <span style={{color:'#4b5563',fontSize:12,fontFamily:'DM Sans,sans-serif'}}>46.2K followers</span>
-                    <span style={{color:'#10b981',fontSize:12,fontFamily:'DM Sans,sans-serif'}}>⚡ 4.1% eng.</span>
-                  </div>
-                </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <h1 style={{ fontWeight: 600, fontSize: 16, color: '#111827' }}>{name}</h1>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#ecfdf5', color: '#059669', fontSize: 11, fontWeight: 500, padding: '2px 8px', borderRadius: 20 }}>
+                  <svg width="10" height="10" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
+                  Verified
+                </span>
               </div>
-              <p style={{color:'#6b7280',fontSize:11,fontFamily:'DM Sans,sans-serif',marginBottom:12,textTransform:'uppercase',letterSpacing:'.06em'}}>Select deliverables</p>
+              <div style={{ color: '#6b7280', fontSize: 13, marginTop: 2 }}>@{slug}</div>
             </div>
-            {[
-              {label:'Instagram Reel',desc:'60-sec branded video',price:'$693',checked:true},
-              {label:'Instagram Story',desc:'3-frame story set',price:'$312',checked:true},
-              {label:'TikTok Video',desc:'30–60 second',price:'$624',checked:false},
-            ].map((item,i) => (
-              <div key={i} className="mock-row">
-                <div style={{display:'flex',alignItems:'center'}}>
-                  <div className={`mock-check${item.checked?' checked':''}`}>
-                    {item.checked && <svg width="10" height="10" viewBox="0 0 20 20" fill="white"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>}
-                  </div>
+            <div style={{ marginLeft: 'auto', textAlign: 'right' as const }}>
+              <div style={{ fontSize: 11, color: '#9ca3af' }}>Live rates</div>
+              <div style={{ fontSize: 11, color: '#10b981' }}>{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 16 }}>
+          <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: '12px 8px', textAlign: 'center' as const }}>
+            <div style={{ fontSize: 18, fontWeight: 600, color: '#111827' }}>{formatFollowers(followers)}</div>
+            <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>Followers</div>
+          </div>
+          <div style={{ background: '#fff', border: `1px solid ${bonusApplied ? '#a7f3d0' : '#e5e7eb'}`, borderRadius: 12, padding: '12px 8px', textAlign: 'center' as const }}>
+            <div style={{ fontSize: 18, fontWeight: 600, color: bonusApplied ? '#059669' : '#111827' }}>{engagement.toFixed(1)}%</div>
+            <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>Engagement</div>
+            {bonusApplied && <div style={{ fontSize: 10, color: '#10b981', marginTop: 2 }}>⚡ Bonus tier</div>}
+          </div>
+          <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: '12px 8px', textAlign: 'center' as const }}>
+            <div style={{ fontSize: 18, fontWeight: 600, color: '#111827' }}>{formatFollowers(Math.round(followers * engagement / 100))}</div>
+            <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>Est. reach</div>
+          </div>
+        </div>
+
+        {/* Bonus tier explainer */}
+        {bonusApplied && (
+          <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: 12, color: '#065f46', lineHeight: 1.5 }}>
+            <strong>⚡ Bonus Tier Pricing Active</strong> — This creator&apos;s {engagement.toFixed(1)}% engagement rate exceeds the 3% threshold, applying a 1.5× pricing multiplier. Their audience is significantly more engaged than average, reflecting higher commercial value for brand partnerships.
+          </div>
+        )}
+
+        {/* Deliverables */}
+        <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 16, overflow: 'hidden', marginBottom: 16 }}>
+          <div style={{ padding: '14px 20px', borderBottom: '1px solid #f3f4f6' }}>
+            <p style={{ fontSize: 11, fontWeight: 500, color: '#9ca3af', textTransform: 'uppercase' as const, letterSpacing: '.06em' }}>Available deliverables</p>
+          </div>
+          {visibleTypes.map((pt, i) => {
+            const price = calculateRate(followers, engagement, pt.multiplier)
+            return (
+              <div key={pt.key} style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: i < visibleTypes.length - 1 ? '1px solid #f3f4f6' : 'none' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ width: 20, height: 20, borderRadius: 4, border: '1.5px solid #d1d5db', flexShrink: 0 }} />
                   <div>
-                    <p style={{color:'#f5f0e8',fontSize:13,fontFamily:'DM Sans,sans-serif',fontWeight:500}}>{item.label}</p>
-                    <p style={{color:'#4b5563',fontSize:11,fontFamily:'DM Sans,sans-serif'}}>{item.desc}</p>
+                    <p style={{ fontSize: 14, fontWeight: 500, color: '#111827' }}>{pt.label}</p>
+                    <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 1 }}>{pt.desc}</p>
                   </div>
                 </div>
-                <div style={{textAlign:'right'}}>
-                  <p style={{color:'#f5f0e8',fontSize:13,fontFamily:'DM Sans,sans-serif',fontWeight:600}}>{item.price}</p>
-                  <p style={{color:'#10b981',fontSize:10,fontFamily:'DM Sans,sans-serif'}}>⚡ Bonus tier</p>
+                <div style={{ textAlign: 'right' as const }}>
+                  <p style={{ fontSize: 14, fontWeight: 600, color: '#111827' }}>{formatPrice(price)}</p>
+                  {bonusApplied && <p style={{ fontSize: 10, color: '#10b981', marginTop: 1 }}>⚡ Bonus tier</p>}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Add-ons */}
+        <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 16, padding: 20, marginBottom: 16 }}>
+          <p style={{ fontSize: 11, fontWeight: 500, color: '#9ca3af', textTransform: 'uppercase' as const, letterSpacing: '.06em', marginBottom: 12 }}>Add-ons</p>
+          <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
+            {[
+              { label: 'Whitelisting +20%', desc: 'Brand runs ads through your account' },
+              { label: 'Exclusivity +30%', desc: 'No competing brands for 30 days' },
+              { label: 'Rush fee +15%', desc: 'Delivery in under 48 hours' },
+            ].map((addon, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, border: '1px solid #f3f4f6', background: '#fafafa' }}>
+                <div style={{ width: 16, height: 16, borderRadius: 4, border: '1.5px solid #d1d5db', flexShrink: 0 }} />
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 500, color: '#111827' }}>{addon.label}</p>
+                  <p style={{ fontSize: 11, color: '#9ca3af' }}>{addon.desc}</p>
                 </div>
               </div>
             ))}
-            <div className="quote-card" style={{margin:'12px 18px 18px'}}>
-              <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
-                <span style={{color:'#6b7280',fontSize:12,fontFamily:'DM Sans,sans-serif'}}>Instagram Reel</span>
-                <span style={{color:'#f5f0e8',fontSize:12,fontFamily:'DM Sans,sans-serif'}}>$693</span>
-              </div>
-              <div style={{display:'flex',justifyContent:'space-between',marginBottom:10}}>
-                <span style={{color:'#6b7280',fontSize:12,fontFamily:'DM Sans,sans-serif'}}>Instagram Story</span>
-                <span style={{color:'#f5f0e8',fontSize:12,fontFamily:'DM Sans,sans-serif'}}>$312</span>
-              </div>
-              <div style={{display:'flex',justifyContent:'space-between',paddingTop:10,borderTop:'1px solid rgba(255,255,255,0.08)'}}>
-                <span style={{color:'#f5f0e8',fontSize:14,fontFamily:'DM Sans,sans-serif',fontWeight:600}}>Total</span>
-                <span style={{color:'#10b981',fontSize:14,fontFamily:'DM Sans,sans-serif',fontWeight:700}}>$1,005</span>
-              </div>
+          </div>
+        </div>
+
+        {/* Booking form preview */}
+        <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 16, padding: 20, marginBottom: 24 }}>
+          <p style={{ fontSize: 11, fontWeight: 500, color: '#9ca3af', textTransform: 'uppercase' as const, letterSpacing: '.06em', marginBottom: 16 }}>Send booking request</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
+            <div>
+              <label style={{ fontSize: 11, color: '#6b7280', display: 'block', marginBottom: 4 }}>Brand name *</label>
+              <div style={{ padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 13, color: '#9ca3af', background: '#fafafa' }}>Acme Co.</div>
+            </div>
+            <div>
+              <label style={{ fontSize: 11, color: '#6b7280', display: 'block', marginBottom: 4 }}>Email *</label>
+              <div style={{ padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 13, color: '#9ca3af', background: '#fafafa' }}>you@brand.com</div>
             </div>
           </div>
-          <p className="body-text" style={{textAlign:'center',color:'#374151',fontSize:12,marginTop:12}}>↑ What a brand manager sees when they click your link</p>
+          <div style={{ padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 13, color: '#9ca3af', background: '#fafafa', marginBottom: 12, minHeight: 60 }}>Campaign brief (optional)</div>
+          <div style={{ width: '100%', padding: '14px 0', textAlign: 'center' as const, borderRadius: 12, background: '#d1fae5', color: '#065f46', fontSize: 14, fontWeight: 500 }}>
+            Select deliverables above to see total
+          </div>
         </div>
-      </section>
 
-      <div className="divider" style={{maxWidth:1100,margin:'0 auto'}}/>
-
-      <section id="how" style={{padding:'0 40px 80px',maxWidth:1100,margin:'0 auto'}}>
-        <div style={{textAlign:'center',marginBottom:56}}>
-          <h2 className="hero-text" style={{fontSize:48,fontWeight:800,letterSpacing:'-.02em',marginBottom:16}}>Three minutes to live.</h2>
-          <p className="body-text" style={{color:'#9ca3af',fontSize:18,fontWeight:300}}>No media kit software. No design tools. No waiting.</p>
-        </div>
-        <div className="steps-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:24}}>
-          {[
-            {n:'01',title:'Set up your profile',desc:'Enter your display name, handle, follower count, and engagement rate. Takes 2 minutes. Edit anytime.'},
-            {n:'02',title:'Get your link',desc:'Your live rate card is instantly published at rateref.co/c/yourname. Drop it in your Instagram bio, Beacons page, email signature, or DMs.'},
-            {n:'03',title:'Brands book you',desc:'When a brand clicks your link, they build their own campaign quote, see real-time pricing, and submit a booking request directly to your dashboard.'},
-          ].map((s,i) => (
-            <div key={i} className="feature-card">
-              <div className="step-num">{s.n}</div>
-              <h3 className="hero-text" style={{fontSize:22,fontWeight:700,marginBottom:12,letterSpacing:'-.01em'}}>{s.title}</h3>
-              <p className="body-text" style={{color:'#9ca3af',lineHeight:1.6,fontSize:15,fontWeight:300}}>{s.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <div className="divider" style={{maxWidth:1100,margin:'0 auto'}}/>
-
-      <section id="why" style={{padding:'0 40px 80px',maxWidth:1100,margin:'0 auto'}}>
-        <div style={{textAlign:'center',marginBottom:56}}>
-          <h2 className="hero-text" style={{fontSize:48,fontWeight:800,letterSpacing:'-.02em',marginBottom:16}}>
-            Built for creators<br/>who are serious<br/><em>about brand deals.</em>
+        {/* Claim CTA */}
+        <div style={{ background: 'linear-gradient(135deg, #064e3b, #065f46)', borderRadius: 16, padding: 24, textAlign: 'center' as const }}>
+          <p style={{ color: '#a7f3d0', fontSize: 12, fontWeight: 500, textTransform: 'uppercase' as const, letterSpacing: '.08em', marginBottom: 8 }}>This is your free rate card</p>
+          <h2 style={{ color: '#fff', fontSize: 22, fontWeight: 700, marginBottom: 8, lineHeight: 1.3 }}>
+            rateref.co/c/<span style={{ color: '#6ee7b7' }}>{slug}</span>
           </h2>
+          <p style={{ color: '#a7f3d0', fontSize: 13, marginBottom: 20, lineHeight: 1.5 }}>
+            Claim your link in 2 minutes. Brands can find you, see your rates, and book you directly — no back-and-forth.
+          </p>
+          <a href={claimUrl} style={{ display: 'inline-block', background: '#10b981', color: '#fff', padding: '14px 32px', borderRadius: 12, fontSize: 15, fontWeight: 600, textDecoration: 'none' }}>
+            Claim rateref.co/c/{slug} — it&apos;s free →
+          </a>
+          <p style={{ color: '#6ee7b7', fontSize: 11, marginTop: 12 }}>No credit card · Takes 2 minutes · Free forever</p>
         </div>
-        <div className="features-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:24}}>
-          {[
-            {icon:'⚡',title:'Engagement bonus pricing',desc:'If your engagement rate is above 3%, your rates automatically apply a 1.5× bonus multiplier. Your pricing reflects your actual value, not just your follower count.'},
-            {icon:'🔄',title:'Live rates, always current',desc:'Unlike a PDF that goes stale the moment your metrics change, your RateRef card always shows your latest rates. Update your metrics in seconds anytime from your dashboard.'},
-            {icon:'📊',title:'Real-time quote builder',desc:'Brands select exactly what they want — Reels, Stories, TikToks — and see a live campaign total build in real time. They show up to your inbox knowing the number.'},
-            {icon:'➕',title:'Add-ons built in',desc:'Whitelisting (+20%), exclusivity (+30%), and rush fees (+15%) are standard options on every card. No more negotiating these separately.'},
-            {icon:'📥',title:'Inquiry dashboard',desc:"Every booking request comes with the brand's name, email, campaign brief, and the exact quote they saw. Everything you need to respond fast."},
-            {icon:'🔗',title:'One link does everything',desc:'Add your RateRef link to your Beacons page, email signature, or anywhere you talk to brands. Your media kit, rate sheet, and booking form all in one place.'},
-          ].map((f,i) => (
-            <div key={i} className="feature-card">
-              <div style={{fontSize:28,marginBottom:14}}>{f.icon}</div>
-              <h3 className="hero-text" style={{fontSize:20,fontWeight:700,marginBottom:10,letterSpacing:'-.01em'}}>{f.title}</h3>
-              <p className="body-text" style={{color:'#9ca3af',lineHeight:1.6,fontSize:15,fontWeight:300}}>{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
 
-      <div className="divider" style={{maxWidth:1100,margin:'0 auto'}}/>
-
-      <section id="pricing" style={{padding:'0 40px 80px',maxWidth:1100,margin:'0 auto'}}>
-        <div style={{textAlign:'center',marginBottom:56}}>
-          <h2 className="hero-text" style={{fontSize:48,fontWeight:800,letterSpacing:'-.02em',marginBottom:16}}>Free to start.<br/>Always.</h2>
-          <p className="body-text" style={{color:'#9ca3af',fontSize:18,fontWeight:300}}>No credit card required. No trial period. Just sign up and go.</p>
-        </div>
-        <div className="pricing-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:24,maxWidth:720,margin:'0 auto'}}>
-          <div className="feature-card" style={{padding:36}}>
-            <p className="body-text" style={{color:'#9ca3af',fontSize:13,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>Free tier</p>
-            <div style={{display:'flex',alignItems:'baseline',gap:4,marginBottom:24}}>
-              <span className="hero-text" style={{fontSize:48,fontWeight:900}}>$0</span>
-              <span className="body-text" style={{color:'#9ca3af',fontSize:15}}>/month</span>
-            </div>
-            {['Full live rate card','Unlimited inquiries','All post types & add-ons','Booking request dashboard','"Powered by RateRef" footer'].map((f,i) => (
-              <div key={i} style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
-                <span style={{color:'#10b981',fontSize:14}}>✓</span>
-                <span className="body-text" style={{color:'#9ca3af',fontSize:14}}>{f}</span>
-              </div>
-            ))}
-            <a href="/login" className="cta-btn" style={{width:'100%',justifyContent:'center',marginTop:24,background:'rgba(5,150,105,0.15)',color:'#6ee7b7'}}>Get started free</a>
-          </div>
-          <div className="feature-card" style={{padding:36,borderColor:'rgba(16,185,129,0.3)',background:'rgba(16,185,129,0.05)',position:'relative'}}>
-            <div style={{position:'absolute',top:-12,right:20,background:'#059669',color:'#fff',fontSize:11,fontFamily:'DM Sans,sans-serif',fontWeight:600,padding:'4px 12px',borderRadius:20,letterSpacing:'.05em',textTransform:'uppercase'}}>Coming soon</div>
-            <p className="body-text" style={{color:'#9ca3af',fontSize:13,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>Pro tier</p>
-            <div style={{display:'flex',alignItems:'baseline',gap:4,marginBottom:24}}>
-              <span className="hero-text" style={{fontSize:48,fontWeight:900}}>$19</span>
-              <span className="body-text" style={{color:'#9ca3af',fontSize:15}}>/month</span>
-            </div>
-            {['Everything in free','Remove RateRef footer','Custom usage & licensing terms','Rate analytics & insights','Multiple platform configs'].map((f,i) => (
-              <div key={i} style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
-                <span style={{color:'#10b981',fontSize:14}}>✓</span>
-                <span className="body-text" style={{color:'#9ca3af',fontSize:14}}>{f}</span>
-              </div>
-            ))}
-            <div style={{width:'100%',padding:'14px 0',textAlign:'center',marginTop:24,borderRadius:12,border:'1px solid rgba(16,185,129,0.2)',color:'#6b7280',fontFamily:'DM Sans,sans-serif',fontSize:15}}>Notify me when live</div>
-          </div>
-        </div>
-      </section>
-
-      <div className="divider" style={{maxWidth:1100,margin:'0 auto'}}/>
-
-      <section style={{padding:'0 40px 120px',maxWidth:700,margin:'0 auto',textAlign:'center'}}>
-        <h2 className="hero-text" style={{fontSize:56,fontWeight:900,letterSpacing:'-.03em',marginBottom:20,lineHeight:1.05,color:'#f5f0e8'}}>
-          Your rates deserve<br/>a <em style={{color:'#10b981'}}>better home.</em>
-        </h2>
-        <p className="body-text" style={{color:'#9ca3af',fontSize:18,marginBottom:40,lineHeight:1.6,fontWeight:300}}>
-          Stop losing brand deals to slow back-and-forth. Get a live rate card that works while you sleep.
+        <p style={{ textAlign: 'center' as const, fontSize: 11, color: '#9ca3af', marginTop: 20 }}>
+          Powered by <a href="/" style={{ color: '#6b7280', fontWeight: 500 }}>RateRef</a> · The live rate card for creators who do brand deals.
         </p>
-        <a href="/login" className="cta-btn" style={{fontSize:17,padding:'18px 40px'}}>Create your free rate card →</a>
-        <p className="body-text" style={{color:'#374151',fontSize:13,marginTop:16}}>3 minutes to set up · No credit card · Free forever on free tier</p>
-      </section>
-
-      <footer style={{borderTop:'1px solid rgba(255,255,255,0.06)',padding:'32px 40px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:16}}>
-        <div style={{display:'flex',alignItems:'center',gap:8}}>
-          <div style={{width:28,height:28,background:'#059669',borderRadius:6,display:'flex',alignItems:'center',justifyContent:'center'}}>
-            <span style={{color:'#fff',fontWeight:700,fontSize:11,fontFamily:'DM Sans,sans-serif'}}>RR</span>
-          </div>
-          <span className="hero-text" style={{fontSize:16,fontWeight:700,letterSpacing:'-.01em'}}>RateRef</span>
-        </div>
-        <p className="body-text" style={{color:'#374151',fontSize:13}}>The live rate card for creators who do brand deals.</p>
-        <div style={{display:'flex',gap:20,alignItems:'center'}}>
-          <a href="/terms" style={{color:'#6b7280',fontSize:13,textDecoration:'none',fontFamily:'DM Sans,sans-serif'}}>Terms</a>
-          <a href="/privacy" style={{color:'#6b7280',fontSize:13,textDecoration:'none',fontFamily:'DM Sans,sans-serif'}}>Privacy</a>
-          <a href="/for-agencies" style={{color:'#6b7280',fontSize:13,textDecoration:'none',fontFamily:'DM Sans,sans-serif'}}>For Agencies</a>
-          <a href="/login" style={{color:'#6b7280',fontSize:13,textDecoration:'none',fontFamily:'DM Sans,sans-serif'}}>Sign in →</a>
-        </div>
-      </footer>
+      </div>
     </div>
+  )
+}
+
+export default function PreviewPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6b7280' }}>Loading preview...</div>}>
+      <PreviewContent />
+    </Suspense>
   )
 }
