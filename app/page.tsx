@@ -60,6 +60,7 @@ export default function LandingPage() {
           <a href="#how" className="nav-link">How it works</a>
           <a href="#why" className="nav-link">Why RateRef</a>
           <a href="#pricing" className="nav-link">Pricing</a>
+          <a href="/for-agencies" className="nav-link">For Agencies</a>
         </div>
         <a href="/login" className="cta-btn" style={{padding:'10px 20px',fontSize:14}}>Get started free →</a>
       </nav>
@@ -268,6 +269,7 @@ export default function LandingPage() {
         <div style={{display:'flex',gap:20,alignItems:'center'}}>
           <a href="/terms" style={{color:'#6b7280',fontSize:13,textDecoration:'none',fontFamily:'DM Sans,sans-serif'}}>Terms</a>
           <a href="/privacy" style={{color:'#6b7280',fontSize:13,textDecoration:'none',fontFamily:'DM Sans,sans-serif'}}>Privacy</a>
+          <a href="/for-agencies" style={{color:'#6b7280',fontSize:13,textDecoration:'none',fontFamily:'DM Sans,sans-serif'}}>For Agencies</a>
           <a href="/login" style={{color:'#6b7280',fontSize:13,textDecoration:'none',fontFamily:'DM Sans,sans-serif'}}>Sign in →</a>
         </div>
       </footer>
