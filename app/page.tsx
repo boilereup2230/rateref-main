@@ -62,7 +62,10 @@ export default function LandingPage() {
           <a href="#pricing" className="nav-link">Pricing</a>
           <a href="/for-agencies" className="nav-link">For Agencies</a>
         </div>
-        <a href="/login" className="cta-btn" style={{padding:'10px 20px',fontSize:14}}>Get started free →</a>
+        <div style={{display:'flex',alignItems:'center',gap:16}}>
+          <a href="/login" style={{fontFamily:'DM Sans,sans-serif',fontSize:14,color:'#9ca3af',textDecoration:'none'}}>Sign in</a>
+          <a href="/setup" className="cta-btn" style={{padding:'10px 20px',fontSize:14}}>Get started free →</a>
+        </div>
       </nav>
 
       <section style={{padding:'100px 40px 80px',maxWidth:1100,margin:'0 auto',position:'relative'}}>
@@ -225,7 +228,7 @@ export default function LandingPage() {
                 <span className="body-text" style={{color:'#9ca3af',fontSize:14}}>{f}</span>
               </div>
             ))}
-            <a href="/login" className="cta-btn" style={{width:'100%',justifyContent:'center',marginTop:24,background:'rgba(5,150,105,0.15)',color:'#6ee7b7'}}>Get started free</a>
+            <a href="/setup" className="cta-btn" style={{width:'100%',justifyContent:'center',marginTop:24,background:'rgba(5,150,105,0.15)',color:'#6ee7b7'}}>Get started free</a>
           </div>
           <div className="feature-card" style={{padding:36,borderColor:'rgba(16,185,129,0.3)',background:'rgba(16,185,129,0.05)',position:'relative'}}>
             <div style={{position:'absolute',top:-12,right:20,background:'#059669',color:'#fff',fontSize:11,fontFamily:'DM Sans,sans-serif',fontWeight:600,padding:'4px 12px',borderRadius:20,letterSpacing:'.05em',textTransform:'uppercase'}}>Coming soon</div>
@@ -254,7 +257,7 @@ export default function LandingPage() {
         <p className="body-text" style={{color:'#9ca3af',fontSize:18,marginBottom:40,lineHeight:1.6,fontWeight:300}}>
           Stop losing brand deals to slow back-and-forth. Get a live rate card that works while you sleep.
         </p>
-        <a href="/login" className="cta-btn" style={{fontSize:17,padding:'18px 40px'}}>Create your free rate card →</a>
+        <a href="/setup" className="cta-btn" style={{fontSize:17,padding:'18px 40px'}}>Create your free rate card →</a>
         <p className="body-text" style={{color:'#374151',fontSize:13,marginTop:16}}>3 minutes to set up · No credit card · Free forever on free tier</p>
       </section>
 
