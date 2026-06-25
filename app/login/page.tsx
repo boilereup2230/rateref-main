@@ -1,6 +1,5 @@
 'use client'
 import { useState } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase-browser'
 
 export default function LoginPage() {
@@ -9,8 +8,6 @@ export default function LoginPage() {
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const searchParams = useSearchParams()
-  const next = searchParams.get('next') || '/setup'
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -20,11 +17,15 @@ export default function LoginPage() {
     if (mode === 'signin') {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) { setError(error.message); setLoading(false); return }
-      window.location.href = next
+      window.location.href = '/setup'
     } else {
-      const { error } = await supabase.auth.signUp({ email, password })
+      const { data, error } = await supabase.auth.signUp({ email, password })
       if (error) { setError(error.message); setLoading(false); return }
-      window.location.href = next
+      if (data.session) {
+        window.location.href = '/setup'
+      } else {
+        window.location.href = '/setup'
+      }
     }
   }
 
