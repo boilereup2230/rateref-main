@@ -12,6 +12,7 @@ function SetupForm() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [checking, setChecking] = useState(true)
 
   useEffect(() => {
     const slugParam = searchParams.get('slug')
@@ -20,6 +21,20 @@ function SetupForm() {
       setForm(f => ({ ...f, slug: cleaned }))
     }
   }, [searchParams])
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        // Save the current URL so we can return after login
+        const slug = searchParams.get('slug')
+        const returnUrl = slug ? `/setup?slug=${slug}` : '/setup'
+        router.replace(`/login?next=${encodeURIComponent(returnUrl)}`)
+      } else {
+        setChecking(false)
+      }
+    })
+  }, [router, searchParams])
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     const { name, value } = e.target
@@ -48,30 +63,32 @@ function SetupForm() {
       engagement_rate: parseFloat(form.engagement_rate) || 0, is_published: true,
     })
     if (profileError) { setError(profileError.message.includes('slug') ? 'That URL is taken — try another.' : profileError.message); setLoading(false); return }
-
     await supabase.from('rate_configs').insert(DEFAULT_RATE_CONFIGS.map((cfg, i) => ({
       profile_id: user.id, post_type: cfg.post_type, label: cfg.label,
       description: cfg.description, multiplier: cfg.multiplier,
       manual_override_cents: null, is_enabled: cfg.is_enabled, sort_order: i,
     })))
-
-    // Optional avatar upload — happens after profile exists
     if (avatarFile) {
       const fileExt  = avatarFile.name.split('.').pop()
       const filePath = `${user.id}/avatar.${fileExt}`
       const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, avatarFile, { upsert: true })
-
       if (!uploadError) {
         const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath)
         const newAvatarUrl = `${publicUrlData.publicUrl}?t=${Date.now()}`
         await supabase.from('profiles').update({ avatar_url: newAvatarUrl }).eq('id', user.id)
       }
-      // If avatar upload fails, don't block setup — they can add it later in Settings
     }
-
     router.push('/dashboard')
+  }
+
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-sm text-gray-400">Loading…</p>
+      </div>
+    )
   }
 
   return (
@@ -84,7 +101,6 @@ function SetupForm() {
         <div className="bg-white rounded-2xl border border-gray-200 p-8">
           {error && <div className="mb-6 p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">{error}</div>}
           <form onSubmit={handleSubmit} className="space-y-5">
-
             <div>
               <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Profile picture</label>
               <div className="flex items-center gap-3">
@@ -102,7 +118,6 @@ function SetupForm() {
               </div>
               <p className="text-xs text-gray-400 mt-1">Optional — you can add this later in Settings</p>
             </div>
-
             <div><label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1.5">Creator name *</label>
               <input name="display_name" required value={form.display_name} onChange={handleChange} placeholder="Sara Chen"
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" /></div>
