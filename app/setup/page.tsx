@@ -24,13 +24,22 @@ function SetupForm() {
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (!user) {
         const slug = searchParams.get('slug')
         const returnUrl = slug ? `/setup?slug=${slug}` : '/setup'
         router.replace(`/login?next=${encodeURIComponent(returnUrl)}`)
       } else {
-        setChecking(false)
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('id', user.id)
+          .single()
+        if (profile) {
+          router.replace('/dashboard')
+        } else {
+          setChecking(false)
+        }
       }
     })
   }, [router, searchParams])
@@ -82,8 +91,8 @@ function SetupForm() {
 
   if (checking) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-sm text-gray-400">Loading…</p>
+      <div style={{ minHeight: '100vh', background: '#f9fafb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ fontSize: '13px', color: '#9ca3af' }}>Loading…</p>
       </div>
     )
   }
@@ -94,7 +103,6 @@ function SetupForm() {
       {/* LEFT — Value prop */}
       <div style={{ width: '45%', background: '#0a0a0a', padding: '48px', display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'sticky', top: 0, height: '100vh' }}>
 
-        {/* Logo */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '48px' }}>
           <div style={{ width: '32px', height: '32px', background: '#059669', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <span style={{ color: '#fff', fontWeight: 700, fontSize: '12px' }}>RR</span>
@@ -102,7 +110,6 @@ function SetupForm() {
           <span style={{ color: '#f5f0e8', fontWeight: 700, fontSize: '16px' }}>RateRef</span>
         </div>
 
-        {/* Headline */}
         <h1 style={{ color: '#f5f0e8', fontSize: '32px', fontWeight: 800, lineHeight: 1.15, marginBottom: '16px', letterSpacing: '-0.02em' }}>
           Your rates deserve<br/>a <span style={{ color: '#10b981' }}>better home.</span>
         </h1>
@@ -110,7 +117,6 @@ function SetupForm() {
           Brands click your link, see real-time pricing, and submit a booking request directly. No back-and-forth. No guessing what to charge.
         </p>
 
-        {/* Benefits */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '40px' }}>
           {[
             { icon: '⚡', title: 'Engagement bonus pricing', desc: 'Above 3% engagement? Your rates auto-apply a 1.5× multiplier.' },
@@ -127,7 +133,6 @@ function SetupForm() {
           ))}
         </div>
 
-        {/* Mock rate card */}
         <div style={{ background: '#111827', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
           <div style={{ background: '#1f2937', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
             <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }}/>
@@ -172,7 +177,6 @@ function SetupForm() {
 
             <form onSubmit={handleSubmit}>
 
-              {/* Avatar */}
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>Profile picture</label>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -187,14 +191,12 @@ function SetupForm() {
                 <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>Optional — add later in Settings</p>
               </div>
 
-              {/* Creator name */}
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>Creator name *</label>
                 <input name="display_name" required value={form.display_name} onChange={handleChange} placeholder="Sara Chen"
                   style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
               </div>
 
-              {/* Slug */}
               <div style={{ marginBottom: '16px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
                   <label style={{ fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Your URL *</label>
@@ -204,14 +206,12 @@ function SetupForm() {
                   style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
               </div>
 
-              {/* Bio */}
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>Short bio</label>
                 <textarea name="bio" value={form.bio} onChange={handleChange} placeholder="Travel & lifestyle creator" rows={2}
                   style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
               </div>
 
-              {/* Handles */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '16px' }}>
                 {[
                   { name: 'instagram_handle', label: 'Instagram' },
@@ -226,7 +226,6 @@ function SetupForm() {
                 ))}
               </div>
 
-              {/* Followers + Engagement */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>Followers *</label>
