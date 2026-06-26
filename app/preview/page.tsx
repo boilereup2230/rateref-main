@@ -4,9 +4,9 @@ import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
 
 function calculateRate(followers: number, engagement: number, multiplier: number): number {
-  const base = followers * 0.01 * multiplier
+  const base = (followers / 10000) * 1000 * multiplier
   const engagementBonus = engagement >= 3 ? 1.5 : 1.0
-  return Math.round(base * engagementBonus)
+  return Math.max(Math.round(base * engagementBonus), 25)
 }
 
 function formatPrice(n: number): string {
@@ -20,31 +20,30 @@ function formatFollowers(n: number): string {
 }
 
 const POST_TYPES = [
-  { key: 'reel', label: 'Instagram Reel', desc: '60-sec branded video', multiplier: 1.5 },
-  { key: 'story', label: 'Instagram Story', desc: '3-frame story set', multiplier: 0.6 },
-  { key: 'feed', label: 'Static Feed Post', desc: 'Single image or carousel', multiplier: 0.8 },
-  { key: 'tiktok', label: 'TikTok Video', desc: '30–60 second', multiplier: 1.2 },
-  { key: 'youtube', label: 'YouTube Integration', desc: '60-sec mid-roll mention', multiplier: 2.0 },
+  { key: 'reel',   label: 'Instagram Reel',      desc: '60-sec branded video · 1 revision included',       multiplier: 1.00 },
+  { key: 'story',  label: 'Instagram Story',      desc: '3-frame story set · Link sticker included',        multiplier: 0.45 },
+  { key: 'tiktok', label: 'TikTok Video',         desc: '30–60 second TikTok · Trend-aligned format',       multiplier: 0.90 },
+  { key: 'static', label: 'Static Feed Post',     desc: 'Single image + caption · 7-day usage rights',     multiplier: 0.60 },
+  { key: 'bundle', label: 'Reel + Story Bundle',  desc: 'Full Reel plus 3-frame story · Best value',        multiplier: 1.35 },
 ]
 
 function PreviewContent() {
   const params = useSearchParams()
 
-  const name = params.get('name') || 'Your Name'
-  const handle = params.get('handle') || 'yourcreatorname'
-  const followers = parseInt(params.get('followers') || '25000')
+  const name       = params.get('name')       || 'Your Name'
+  const handle     = params.get('handle')     || 'yourcreatorname'
+  const followers  = parseInt(params.get('followers')  || '25000')
   const engagement = parseFloat(params.get('engagement') || '3.5')
-  const platform = params.get('platform') || 'instagram'
+  const platform   = params.get('platform')   || 'instagram'
 
   const bonusApplied = engagement >= 3
   const initials = name.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)
-  const slug = handle.replace('@', '').toLowerCase().replace(/[^a-z0-9-]/g, '')
+  const slug     = handle.replace('@', '').toLowerCase().replace(/[^a-z0-9-]/g, '')
   const claimUrl = `/setup?slug=${slug}`
 
   const visibleTypes = POST_TYPES.filter(pt => {
-    if (platform === 'instagram') return ['reel', 'story', 'feed'].includes(pt.key)
-    if (platform === 'tiktok') return ['tiktok', 'feed'].includes(pt.key)
-    if (platform === 'youtube') return ['youtube', 'feed'].includes(pt.key)
+    if (platform === 'instagram') return ['reel', 'story', 'static', 'bundle'].includes(pt.key)
+    if (platform === 'tiktok')    return ['tiktok', 'static'].includes(pt.key)
     return true
   })
 
@@ -147,8 +146,8 @@ function PreviewContent() {
           <div style={{ display: 'flex', flexDirection: 'column' as const, gap: 8 }}>
             {[
               { label: 'Whitelisting +20%', desc: 'Brand runs ads through your account' },
-              { label: 'Exclusivity +30%', desc: 'No competing brands for 30 days' },
-              { label: 'Rush fee +15%', desc: 'Delivery in under 48 hours' },
+              { label: 'Exclusivity +30%',  desc: 'No competing brands for 30 days' },
+              { label: 'Rush fee +15%',     desc: 'Delivery in under 48 hours' },
             ].map((addon, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 10, border: '1px solid #f3f4f6', background: '#fafafa' }}>
                 <div style={{ width: 16, height: 16, borderRadius: 4, border: '1.5px solid #d1d5db', flexShrink: 0 }} />
