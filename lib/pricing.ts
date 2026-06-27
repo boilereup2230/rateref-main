@@ -2,6 +2,7 @@ export const BASE_RATE_PER_10K_CENTS = 10_000
 export const ENGAGEMENT_THRESHOLD    = 3.0
 export const ENGAGEMENT_BONUS        = 1.5
 export const MINIMUM_PRICE_CENTS     = 2_500
+export const BUNDLE_MINIMUM_PRICE_CENTS = 4_000
 
 export const ADDON_RATES = {
   whitelisting: 0.20,
@@ -42,6 +43,7 @@ export function calculatePrice(
   engagementRate: number,
   multiplier:     number,
   manualOverrideCents?: number | null,
+  postType?: string,
 ): PriceResult {
   if (manualOverrideCents != null && manualOverrideCents > 0) {
     return {
@@ -53,7 +55,8 @@ export function calculatePrice(
   }
   const engBonus   = engagementRate >= ENGAGEMENT_THRESHOLD ? ENGAGEMENT_BONUS : 1.0
   const rawCents   = Math.round((followerCount / 10_000) * BASE_RATE_PER_10K_CENTS * engBonus * multiplier)
-  const priceCents = Math.max(rawCents, MINIMUM_PRICE_CENTS)
+  const floorCents = postType === 'bundle' ? BUNDLE_MINIMUM_PRICE_CENTS : MINIMUM_PRICE_CENTS
+  const priceCents = Math.max(rawCents, floorCents)
   return {
     priceCents,
     priceFormatted:   formatCents(priceCents),
@@ -70,7 +73,7 @@ export function buildQuote(
 ): QuoteResult {
   const lineItems = selectedConfigs.map(cfg => ({
     label:      cfg.label,
-    priceCents: calculatePrice(followerCount, engagementRate, cfg.multiplier, cfg.manual_override_cents).priceCents,
+    priceCents: calculatePrice(followerCount, engagementRate, cfg.multiplier, cfg.manual_override_cents, cfg.post_type).priceCents,
   }))
   const subtotalCents   = lineItems.reduce((s, l) => s + l.priceCents, 0)
   const addonItems      = (Object.keys(ADDON_RATES) as AddonKey[])
