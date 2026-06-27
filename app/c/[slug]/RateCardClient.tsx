@@ -172,7 +172,7 @@ export default function RateCardClient({ profile, rateConfigs }: Props) {
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Select deliverables</p>
           </div>
           {rateConfigs.map(cfg => {
-            const result   = calculatePrice(profile.follower_count, profile.engagement_rate, cfg.multiplier, cfg.manual_override_cents)
+            const result = calculatePrice(profile.follower_count, profile.engagement_rate, cfg.multiplier, cfg.manual_override_cents, cfg.post_type)
             const isActive = !!selected[cfg.id]
             return (
               <button key={cfg.id} onClick={() => toggleConfig(cfg.id)}
