@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     await resend.emails.send({
       from: 'RateRef <notifications@rateref.co>',
       to: creatorEmail,
-      replyTo: contactEmail,
+      reply_to: contactEmail,
       subject: `${brandName} wants to book you`,
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 24px; color: #111;">
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
             <tr><td style="padding: 10px 8px; color: #666; vertical-align: top;">Message</td><td style="padding: 10px 8px;">${message || 'No message provided'}</td></tr>
           </table>
           <a href="https://rateref.co/dashboard" style="background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 500; font-size: 14px;">View in Dashboard →</a>
-          <p style="margin-top: 32px; color: #999; font-size: 13px;">You received this because a brand submitted a request through your RateRef rate card at rateref.co/c/${creatorName.toLowerCase().replace(/\s+/g, '')}. Reply directly to this email to contact ${brandName}.</p>
+          <p style="margin-top: 32px; color: #999; font-size: 13px;">You received this because a brand submitted a request through your RateRef rate card. Reply directly to this email to contact ${brandName}.</p>
         </div>
       `
     })
