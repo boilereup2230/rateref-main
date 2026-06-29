@@ -316,6 +316,11 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
 
         {tab === 'inquiries' && (
           <div className="space-y-3">
+
+            <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-xs text-amber-800">
+              <strong>Never miss a booking request:</strong> Add <span className="font-mono">notifications@rateref.co</span> to your contacts so inquiry emails land in your inbox.
+            </div>
+
             {inquiries.length === 0 && (
               <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center">
                 <p className="text-gray-400 text-sm">No inquiries yet.</p>
@@ -330,12 +335,13 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
                 </div>
               </div>
             )}
+
             {inquiries.map(inq => {
               const status = (inq.status as Status) ?? 'new'
               return (
                 <div key={inq.id} className="bg-white rounded-2xl border border-gray-200 p-5">
                   <div className="flex items-start justify-between gap-4">
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <p className="font-medium text-gray-900 text-sm">{inq.brand_name}</p>
                       <p className="text-xs text-gray-400 mt-0.5">{inq.contact_email}</p>
                       {inq.message && <p className="text-sm text-gray-600 mt-2">{inq.message}</p>}
@@ -345,10 +351,10 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
                         ))}
                       </div>
                       
-                        href={`mailto:${inq.contact_email}?subject=Re: Your booking request via RateRef&body=Hi ${inq.brand_name},%0D%0A%0D%0AThanks for reaching out through my RateRef rate card. I'd love to connect about your campaign.%0D%0A%0D%0A`}
+                        href={`mailto:${inq.contact_email}`}
                         className="inline-flex items-center gap-1 mt-3 text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:underline"
                       >
-                        ✉ Reply to {inq.brand_name} →
+                        Reply to {inq.brand_name} →
                       </a>
                     </div>
                     <div className="text-right flex-shrink-0">
