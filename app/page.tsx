@@ -212,17 +212,26 @@ export default function LandingPage() {
 
       <section id="pricing" style={{padding:'0 40px 80px',maxWidth:1100,margin:'0 auto'}}>
         <div style={{textAlign:'center',marginBottom:56}}>
-          <h2 className="hero-text" style={{fontSize:48,fontWeight:800,letterSpacing:'-.02em',marginBottom:16}}>Free to start.<br/>Always.</h2>
-          <p className="body-text" style={{color:'#9ca3af',fontSize:18,fontWeight:300}}>No credit card required. No trial period. Just sign up and go.</p>
+          <h2 className="hero-text" style={{fontSize:48,fontWeight:800,letterSpacing:'-.02em',marginBottom:16}}>Simple, honest pricing.</h2>
+          <p className="body-text" style={{color:'#9ca3af',fontSize:18,fontWeight:300}}>Free for creators. Built for agencies.</p>
         </div>
-        <div className="pricing-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:24,maxWidth:720,margin:'0 auto'}}>
+        <div className="pricing-grid" style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:24,maxWidth:1000,margin:'0 auto'}}>
+
+          {/* Free tier */}
           <div className="feature-card" style={{padding:36}}>
-            <p className="body-text" style={{color:'#9ca3af',fontSize:13,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>Free tier</p>
+            <p className="body-text" style={{color:'#9ca3af',fontSize:13,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>Creator — Free</p>
             <div style={{display:'flex',alignItems:'baseline',gap:4,marginBottom:24}}>
               <span className="hero-text" style={{fontSize:48,fontWeight:900}}>$0</span>
               <span className="body-text" style={{color:'#9ca3af',fontSize:15}}>/month</span>
             </div>
-            {['Full live rate card','Unlimited inquiries','All post types & add-ons','Booking request dashboard','"Powered by RateRef" footer'].map((f,i) => (
+            {[
+              'Full live rate card',
+              'Unlimited inquiries',
+              'All post types & add-ons',
+              'Booking request dashboard',
+              'Custom deal terms',
+              '"Powered by RateRef" footer',
+            ].map((f,i) => (
               <div key={i} style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
                 <span style={{color:'#10b981',fontSize:14}}>✓</span>
                 <span className="body-text" style={{color:'#9ca3af',fontSize:14}}>{f}</span>
@@ -230,21 +239,59 @@ export default function LandingPage() {
             ))}
             <a href="/setup" className="cta-btn" style={{width:'100%',justifyContent:'center',marginTop:24,background:'rgba(5,150,105,0.15)',color:'#6ee7b7'}}>Get started free</a>
           </div>
+
+          {/* Pro tier */}
           <div className="feature-card" style={{padding:36,borderColor:'rgba(16,185,129,0.3)',background:'rgba(16,185,129,0.05)',position:'relative'}}>
             <div style={{position:'absolute',top:-12,right:20,background:'#059669',color:'#fff',fontSize:11,fontFamily:'DM Sans,sans-serif',fontWeight:600,padding:'4px 12px',borderRadius:20,letterSpacing:'.05em',textTransform:'uppercase'}}>Coming soon</div>
-            <p className="body-text" style={{color:'#9ca3af',fontSize:13,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>Pro tier</p>
+            <p className="body-text" style={{color:'#9ca3af',fontSize:13,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>Creator — Pro</p>
             <div style={{display:'flex',alignItems:'baseline',gap:4,marginBottom:24}}>
               <span className="hero-text" style={{fontSize:48,fontWeight:900}}>$19</span>
               <span className="body-text" style={{color:'#9ca3af',fontSize:15}}>/month</span>
             </div>
-            {['Everything in free','Remove RateRef footer','Custom usage & licensing terms','Rate analytics & insights','Multiple platform configs'].map((f,i) => (
+            {[
+              'Everything in free',
+              'Remove RateRef footer',
+              'Ghost Insurance auto follow-up',
+              'Usage & licensing multiplier',
+              'Priority support',
+            ].map((f,i) => (
               <div key={i} style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
                 <span style={{color:'#10b981',fontSize:14}}>✓</span>
                 <span className="body-text" style={{color:'#9ca3af',fontSize:14}}>{f}</span>
               </div>
             ))}
-            <div style={{width:'100%',padding:'14px 0',textAlign:'center',marginTop:24,borderRadius:12,border:'1px solid rgba(16,185,129,0.2)',color:'#6b7280',fontFamily:'DM Sans,sans-serif',fontSize:15}}>Notify me when live</div>
+            <div style={{width:'100%',padding:'14px 0',textAlign:'center',marginTop:24,borderRadius:12,border:'1px solid rgba(16,185,129,0.2)',color:'#6b7280',fontFamily:'DM Sans,sans-serif',fontSize:15}}>
+              Notify me when live
+            </div>
           </div>
+
+          {/* Agency tier */}
+          <div className="feature-card" style={{padding:36,borderColor:'rgba(16,185,129,0.2)',background:'rgba(16,185,129,0.03)',position:'relative'}}>
+            <div style={{position:'absolute',top:-12,right:20,background:'#047857',color:'#fff',fontSize:11,fontFamily:'DM Sans,sans-serif',fontWeight:600,padding:'4px 12px',borderRadius:20,letterSpacing:'.05em',textTransform:'uppercase'}}>Agencies</div>
+            <p className="body-text" style={{color:'#9ca3af',fontSize:13,textTransform:'uppercase',letterSpacing:'.08em',marginBottom:12}}>Agency Dashboard</p>
+            <div style={{display:'flex',alignItems:'baseline',gap:4,marginBottom:8}}>
+              <span className="hero-text" style={{fontSize:48,fontWeight:900}}>$0</span>
+              <span className="body-text" style={{color:'#9ca3af',fontSize:15}}>/month</span>
+            </div>
+            <p className="body-text" style={{color:'#6ee7b7',fontSize:13,marginBottom:24}}>+ $12/mo per active creator seat</p>
+            {[
+              'Unified inquiry dashboard',
+              'Full roster visibility',
+              'Live rate card for every creator',
+              'Agency link tag for brand outreach',
+              'Creator privacy protected',
+              'Scales with your roster',
+            ].map((f,i) => (
+              <div key={i} style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
+                <span style={{color:'#10b981',fontSize:14}}>✓</span>
+                <span className="body-text" style={{color:'#9ca3af',fontSize:14}}>{f}</span>
+              </div>
+            ))}
+            <a href="/agency/signup" className="cta-btn" style={{width:'100%',justifyContent:'center',marginTop:24,background:'rgba(5,150,105,0.15)',color:'#6ee7b7'}}>
+              Set up your agency →
+            </a>
+          </div>
+
         </div>
       </section>
 
@@ -273,6 +320,7 @@ export default function LandingPage() {
           <a href="/terms" style={{color:'#6b7280',fontSize:13,textDecoration:'none',fontFamily:'DM Sans,sans-serif'}}>Terms</a>
           <a href="/privacy" style={{color:'#6b7280',fontSize:13,textDecoration:'none',fontFamily:'DM Sans,sans-serif'}}>Privacy</a>
           <a href="/for-agencies" style={{color:'#6b7280',fontSize:13,textDecoration:'none',fontFamily:'DM Sans,sans-serif'}}>For Agencies</a>
+          <a href="/agency/signup" style={{color:'#6b7280',fontSize:13,textDecoration:'none',fontFamily:'DM Sans,sans-serif'}}>Agency signup</a>
           <a href="/login" style={{color:'#6b7280',fontSize:13,textDecoration:'none',fontFamily:'DM Sans,sans-serif'}}>Sign in →</a>
         </div>
       </footer>
