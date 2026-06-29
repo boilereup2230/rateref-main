@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
 import RatesManager from '@/components/dashboard/RatesManager'
 import type { Profile, RateConfigRow, InquiryRow } from '@/lib/supabase-browser'
+
 export default function DashboardPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
@@ -11,6 +12,7 @@ export default function DashboardPage() {
   const [rateConfigs, setRateConfigs] = useState<RateConfigRow[]>([])
   const [inquiries, setInquiries] = useState<InquiryRow[]>([])
   const [monthlyInquiryCount, setMonthlyInquiryCount] = useState(0)
+
   useEffect(() => {
     async function load() {
       const supabase = createClient()
@@ -20,7 +22,6 @@ export default function DashboardPage() {
       if (!profileData) { router.push('/setup'); return }
       const { data: rateConfigsData } = await supabase.from('rate_configs').select('*').eq('profile_id', user.id).order('sort_order')
       const { data: inquiriesData } = await supabase.from('inquiries').select('*').eq('profile_id', user.id).order('created_at', { ascending: false }).limit(20)
-
       const startOfMonth = new Date()
       startOfMonth.setDate(1)
       startOfMonth.setHours(0, 0, 0, 0)
@@ -28,7 +29,6 @@ export default function DashboardPage() {
         .select('*', { count: 'exact', head: true })
         .eq('profile_id', user.id)
         .gte('created_at', startOfMonth.toISOString())
-
       setProfile(profileData)
       setRateConfigs(rateConfigsData ?? [])
       setInquiries(inquiriesData ?? [])
@@ -37,6 +37,7 @@ export default function DashboardPage() {
     }
     load()
   }, [router])
+
   if (loading) return (
     <div style={{ padding: '40px', fontFamily: 'sans-serif', color: '#6b7280' }}>
       Loading your dashboard...
