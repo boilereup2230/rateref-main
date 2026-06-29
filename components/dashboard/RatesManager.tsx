@@ -41,6 +41,7 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
   const [instagramHandle, setInstagramHandle] = useState(profile.instagram_handle ?? '')
   const [tiktokHandle, setTiktokHandle] = useState(profile.tiktok_handle ?? '')
   const [youtubeHandle, setYoutubeHandle] = useState(profile.youtube_handle ?? '')
+  const [customTerms, setCustomTerms] = useState((profile as any).custom_terms ?? '')
   const [avatarUrl, setAvatarUrl] = useState<string | null>(profile.avatar_url ?? null)
   const [uploading, setUploading] = useState(false)
   const [profileSaving, startProfileSave] = useTransition()
@@ -135,6 +136,7 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
         instagram_handle: instagramHandle,
         tiktok_handle: tiktokHandle,
         youtube_handle: youtubeHandle,
+        custom_terms: customTerms || null,
       }).eq('id', profile.id)
       if (error) { setProfileError('Save failed — please try again.'); return }
       setProfileSaved(true)
@@ -351,7 +353,7 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
                 <textarea value={bio} onChange={e => setBio(e.target.value)} rows={3}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none" />
               </div>
-              <div className="grid grid-cols-3 gap-3 mb-2">
+              <div className="grid grid-cols-3 gap-3 mb-4">
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">Instagram</label>
                   <input value={instagramHandle} onChange={e => setInstagramHandle(e.target.value)} placeholder="handle"
@@ -368,7 +370,18 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                 </div>
               </div>
-              <div className="flex items-center justify-between pt-4">
+              <div className="mb-4">
+                <label className="text-xs text-gray-500 mb-1 block">Brand deal terms & requirements</label>
+                <textarea
+                  value={customTerms}
+                  onChange={e => setCustomTerms(e.target.value)}
+                  rows={5}
+                  placeholder="e.g. 50% deposit required upfront. No alcohol or gambling brands. Usage rights limited to 30 days unless negotiated separately. All content subject to creator approval before posting."
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+                />
+                <p className="text-xs text-gray-400 mt-1">Shown on your public rate card above the booking form. Use this to set expectations before brands submit requests.</p>
+              </div>
+              <div className="flex items-center justify-between pt-2">
                 {profileError && <p className="text-sm text-red-600">{profileError}</p>}
                 {profileSaved && !profileError && <p className="text-sm text-emerald-600">✓ Saved</p>}
                 {!profileError && !profileSaved && <span />}
@@ -378,6 +391,7 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
                 </button>
               </div>
             </div>
+
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <p className="text-sm font-medium text-gray-700 mb-4">Your public link</p>
               <div className="flex items-center gap-2 mb-6">
