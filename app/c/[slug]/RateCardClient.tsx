@@ -42,6 +42,7 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
   }, [profile.id])
 
   const selectedConfigs = rateConfigs.filter(c => selected[c.id])
+  const customTerms = (profile as any).custom_terms as string | null
 
   const quote = selectedConfigs.length > 0
     ? buildQuote(profile.follower_count, profile.engagement_rate, selectedConfigs, addons)
@@ -239,6 +240,13 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
                 <span className="text-gray-900">{quote.totalFormatted}</span>
               </div>
             </div>
+          </div>
+        )}
+
+        {customTerms && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-4">
+            <p className="text-xs font-medium text-amber-700 uppercase tracking-wider mb-2">Brand deal terms</p>
+            <p className="text-sm text-amber-900 leading-relaxed whitespace-pre-wrap">{customTerms}</p>
           </div>
         )}
 
