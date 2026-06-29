@@ -5,16 +5,17 @@ import type { Metadata } from 'next'
 
 interface Props {
   params: { slug: string }
+  searchParams: { via?: string }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: `Rate Card — ${params.slug} | RateRef`, description: 'View live rates and book a collaboration' }
 }
 
-export default async function PublicRateCardPage({ params }: Props) {
+export default async function PublicRateCardPage({ params, searchParams }: Props) {
   const supabase = await createServerSupabaseClient()
   const { data: profile } = await supabase.from('profiles').select('*').eq('slug', params.slug).eq('is_published', true).single()
   if (!profile) notFound()
   const { data: rateConfigs } = await supabase.from('rate_configs').select('*').eq('profile_id', profile.id).eq('is_enabled', true).order('sort_order')
-  return <RateCardClient profile={profile} rateConfigs={rateConfigs ?? []} />
+  return <RateCardClient profile={profile} rateConfigs={rateConfigs ?? []} agencySource={searchParams.via ?? null} />
 }
