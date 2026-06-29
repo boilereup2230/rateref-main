@@ -5,8 +5,9 @@ import { createClient, type Profile, type RateConfigRow } from '@/lib/supabase-b
 import { calculatePrice, buildQuote, formatCents, ADDON_RATES, type AddonKey } from '@/lib/pricing'
 
 interface Props {
-  profile:     Profile
-  rateConfigs: RateConfigRow[]
+  profile:      Profile
+  rateConfigs:  RateConfigRow[]
+  agencySource: string | null
 }
 
 const ADDON_LABELS: Record<AddonKey, string> = {
@@ -20,7 +21,7 @@ const ADDON_DESCS: Record<AddonKey, string> = {
   rush:         'Delivery in under 48 hours',
 }
 
-export default function RateCardClient({ profile, rateConfigs }: Props) {
+export default function RateCardClient({ profile, rateConfigs, agencySource }: Props) {
   const supabase = createClient()
 
   const [selected,  setSelected]  = useState<Record<string, boolean>>({})
@@ -68,6 +69,7 @@ export default function RateCardClient({ profile, rateConfigs }: Props) {
       selected_post_types: selectedConfigs.map(c => c.post_type),
       addons:              addons,
       quoted_total_cents:  quote.totalCents,
+      agency_source:       agencySource || null,
     })
 
     if (error) {
@@ -81,11 +83,11 @@ export default function RateCardClient({ profile, rateConfigs }: Props) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         creatorEmail: profile.email,
-        creatorName: profile.display_name,
+        creatorName:  profile.display_name,
         brandName,
         contactEmail: email,
         message,
-        total: quote.totalFormatted,
+        total:        quote.totalFormatted,
       }),
     })
 
@@ -102,7 +104,7 @@ export default function RateCardClient({ profile, rateConfigs }: Props) {
           <span className="text-xs text-emerald-100">You are viewing your public rate card</span>
           <a href="/dashboard"
             className="text-xs font-medium text-white bg-emerald-700 hover:bg-emerald-800 px-3 py-1.5 rounded-lg transition-colors">
-            ← Back to Dashboard
+            Back to Dashboard
           </a>
         </div>
       )}
@@ -162,8 +164,8 @@ export default function RateCardClient({ profile, rateConfigs }: Props) {
 
         {showBonusInfo && (
           <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 mb-4 text-xs text-emerald-800 leading-relaxed">
-            <strong>⚡ What is Bonus Tier pricing?</strong><br/>
-            This creator's engagement rate exceeds 3%, meaning their audience is significantly more active than average. Bonus tier pricing applies a 1.5× multiplier to base rates — reflecting the higher commercial value of a genuinely engaged audience vs. follower count alone. Industry standard: engagement above 3% is considered high-performing for brand partnerships.
+            <strong>What is Bonus Tier pricing?</strong><br/>
+            This creator's engagement rate exceeds 3%, meaning their audience is significantly more active than average. Bonus tier pricing applies a 1.5x multiplier to base rates, reflecting the higher commercial value of a genuinely engaged audience vs. follower count alone.
           </div>
         )}
 
@@ -187,11 +189,9 @@ export default function RateCardClient({ profile, rateConfigs }: Props) {
                 <div className="text-right flex-shrink-0">
                   <p className="text-sm font-semibold text-gray-900">{result.priceFormatted}</p>
                   {result.bonusApplied && !result.isManualOverride && (
-                    <button
-                      type="button"
-                      onClick={e => { e.stopPropagation(); setShowBonusInfo(v => !v) }}
+                    <button type="button" onClick={e => { e.stopPropagation(); setShowBonusInfo(v => !v) }}
                       className="text-xs text-emerald-600 mt-0.5 hover:text-emerald-700 hover:underline">
-                      ⚡ Bonus tier
+                      Bonus tier
                     </button>
                   )}
                 </div>
@@ -250,7 +250,7 @@ export default function RateCardClient({ profile, rateConfigs }: Props) {
                 <svg className="w-5 h-5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
               </div>
               <p className="font-medium text-gray-900 text-sm">Request sent to {profile.display_name}!</p>
-              <p className="text-xs text-gray-400 mt-1">They&apos;ll be in touch within 48 hours. Your quote has been saved.</p>
+              <p className="text-xs text-gray-400 mt-1">They'll be in touch within 48 hours. Your quote has been saved.</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -297,11 +297,9 @@ function StatTile({ value, label, highlight, onInfoClick }: { value: string; lab
       <p className={`text-lg font-semibold ${highlight ? 'text-emerald-600' : 'text-gray-900'}`}>{value}</p>
       <p className="text-xs text-gray-400 mt-0.5">{label}</p>
       {highlight && (
-        <button
-          type="button"
-          onClick={onInfoClick}
+        <button type="button" onClick={onInfoClick}
           className="text-xs text-emerald-500 mt-0.5 hover:text-emerald-700 hover:underline cursor-pointer">
-          ⚡ Bonus tier
+          Bonus tier
         </button>
       )}
     </div>
