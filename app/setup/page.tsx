@@ -70,7 +70,7 @@ function SetupForm() {
       follower_count: parseInt(form.follower_count) || 0,
       engagement_rate: parseFloat(form.engagement_rate) || 0, is_published: true,
     })
-    if (profileError) { setError(profileError.message.includes('slug') ? 'That URL is taken — try another.' : profileError.message); setLoading(false); return }
+    if (profileError) { setError(profileError.message.includes('slug') ? 'That link is taken — try another.' : profileError.message); setLoading(false); return }
     await supabase.from('rate_configs').insert(DEFAULT_RATE_CONFIGS.map((cfg, i) => ({
       profile_id: user.id, post_type: cfg.post_type, label: cfg.label,
       description: cfg.description, multiplier: cfg.multiplier,
@@ -198,12 +198,13 @@ function SetupForm() {
               </div>
 
               <div style={{ marginBottom: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '6px' }}>
-                  <label style={{ fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Your URL *</label>
-                  <span style={{ fontSize: '11px', color: '#059669' }}>rateref.co/c/{form.slug || 'yourname'}</span>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Choose your link *</label>
+                <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '2px', marginBottom: '6px' }}>This becomes your RateRef link — pick something simple like your name or handle.</p>
+                <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', background: '#fff' }}>
+                  <span style={{ padding: '10px 0 10px 12px', fontSize: '14px', color: '#9ca3af', whiteSpace: 'nowrap' }}>rateref.co/c/</span>
+                  <input name="slug" required value={form.slug} onChange={handleChange} placeholder="saracreates"
+                    style={{ flex: 1, padding: '10px 12px 10px 2px', border: 'none', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
                 </div>
-                <input name="slug" required value={form.slug} onChange={handleChange} placeholder="saracreates"
-                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }} />
               </div>
 
               <div style={{ marginBottom: '16px' }}>
