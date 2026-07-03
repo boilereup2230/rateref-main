@@ -1,4 +1,4 @@
-export const BASE_RATE_PER_10K_CENTS = 10_000
+export const BASE_RATE_PER_10K_CENTS = 100_000
 export const ENGAGEMENT_THRESHOLD    = 3.0
 export const ENGAGEMENT_BONUS        = 1.5
 export const MINIMUM_PRICE_CENTS     = 2_500
