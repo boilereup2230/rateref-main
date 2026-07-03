@@ -50,25 +50,25 @@ export interface QuoteResult {
 
 export function getTieredBaseCents(followerCount: number): number {
   if (followerCount <= 10_000) {
-    return 2_000 + (followerCount / 1_000) * 1_500
+    return 5_000 + (followerCount / 1_000) * 2_500
   } else if (followerCount <= 50_000) {
-    return 10_000 + ((followerCount - 10_000) / 1_000) * 2_000
+    return 20_000 + ((followerCount - 10_000) / 1_000) * 3_000
   } else {
-    return 25_000 + ((followerCount - 50_000) / 1_000) * 2_500
+    return 50_000 + ((followerCount - 50_000) / 1_000) * 3_500
   }
 }
 
 export function getEngagementMultiplier(engagementRate: number): number {
-  return 1 + ((engagementRate - ENGAGEMENT_AVERAGE) * 0.1)
+  return Math.max(0.5, 1 + ((engagementRate - ENGAGEMENT_AVERAGE) * 0.1))
 }
 
 export function calculatePrice(
-  followerCount:       number,
-  engagementRate:      number,
-  multiplier:          number,
+  followerCount:        number,
+  engagementRate:       number,
+  multiplier:           number,
   manualOverrideCents?: number | null,
-  postType?:           string,
-  niche?:              NicheKey | null,
+  postType?:            string,
+  niche?:               NicheKey | null,
 ): PriceResult {
   if (manualOverrideCents != null && manualOverrideCents > 0) {
     return {
