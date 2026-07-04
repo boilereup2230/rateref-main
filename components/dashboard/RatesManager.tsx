@@ -23,6 +23,23 @@ const STATUS_STYLES: Record<Status, string> = {
   declined: 'bg-red-50 text-red-700',
 }
 
+const NICHE_OPTIONS = [
+  { value: '', label: 'Select a niche…' },
+  { value: 'Sports & Fitness', label: 'Sports & Fitness' },
+  { value: 'Health & Wellness', label: 'Health & Wellness' },
+  { value: 'Nutrition & Food', label: 'Nutrition & Food' },
+  { value: 'Lifestyle', label: 'Lifestyle' },
+  { value: 'Fashion & Beauty', label: 'Fashion & Beauty' },
+  { value: 'Tech & SaaS', label: 'Tech & SaaS' },
+  { value: 'Business & Finance', label: 'Business & Finance' },
+  { value: 'Travel', label: 'Travel' },
+  { value: 'Gaming', label: 'Gaming' },
+  { value: 'Education', label: 'Education' },
+  { value: 'Entertainment', label: 'Entertainment' },
+  { value: 'Parenting & Family', label: 'Parenting & Family' },
+  { value: 'Other', label: 'Other' },
+]
+
 export default function RatesManager({ profile, rateConfigs: initial, inquiries: initialInquiries, monthlyInquiryCount }: Props) {
   const supabase = createClient()
   const [tab, setTab] = useState<Tab>('rates')
@@ -47,6 +64,10 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
   const [profileSaving, startProfileSave] = useTransition()
   const [profileSaved, setProfileSaved] = useState(false)
   const [profileError, setProfileError] = useState('')
+  const [avgMonthlyViews, setAvgMonthlyViews] = useState(String((profile as any).avg_monthly_views ?? ''))
+  const [pastBrands, setPastBrands] = useState((profile as any).past_brands ?? '')
+  const [contentNiche, setContentNiche] = useState((profile as any).content_niche ?? '')
+  const [turnaroundDays, setTurnaroundDays] = useState(String((profile as any).turnaround_days ?? ''))
 
   function updateConfig(id: string, patch: Partial<RateConfigRow>) {
     setConfigs(cs => cs.map(c => c.id === id ? { ...c, ...patch } : c))
@@ -137,7 +158,11 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
         tiktok_handle: tiktokHandle,
         youtube_handle: youtubeHandle,
         custom_terms: customTerms || null,
-      }).eq('id', profile.id)
+        avg_monthly_views: avgMonthlyViews ? parseInt(avgMonthlyViews) : null,
+        past_brands: pastBrands || null,
+        content_niche: contentNiche || null,
+        turnaround_days: turnaroundDays ? parseInt(turnaroundDays) : null,
+      } as any).eq('id', profile.id)
       if (error) { setProfileError('Save failed — please try again.'); return }
       setProfileSaved(true)
       setTimeout(() => setProfileSaved(false), 3000)
@@ -343,16 +368,30 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
                   <p className="text-xs text-gray-400 mt-1">Shown on your public rate card</p>
                 </div>
               </div>
+
               <div className="mb-4">
                 <label className="text-xs text-gray-500 mb-1 block">Display name</label>
                 <input value={displayName} onChange={e => setDisplayName(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
               </div>
+
               <div className="mb-4">
                 <label className="text-xs text-gray-500 mb-1 block">Bio</label>
                 <textarea value={bio} onChange={e => setBio(e.target.value)} rows={3}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none" />
               </div>
+
+              <div className="mb-4">
+                <label className="text-xs text-gray-500 mb-1 block">Content niche</label>
+                <select value={contentNiche} onChange={e => setContentNiche(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white">
+                  {NICHE_OPTIONS.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-400 mt-1">Shown on your public card to help brands identify fit.</p>
+              </div>
+
               <div className="grid grid-cols-3 gap-3 mb-4">
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">Instagram</label>
@@ -370,6 +409,29 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                 </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="text-xs text-gray-500 mb-1 block">Avg. monthly views</label>
+                  <input value={avgMonthlyViews} onChange={e => setAvgMonthlyViews(e.target.value)} type="number" min="0" placeholder="e.g. 3800000"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                  <p className="text-xs text-gray-400 mt-1">Total views across all content last 30 days.</p>
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500 mb-1 block">Standard turnaround (days)</label>
+                  <input value={turnaroundDays} onChange={e => setTurnaroundDays(e.target.value)} type="number" min="1" max="90" placeholder="e.g. 7"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                  <p className="text-xs text-gray-400 mt-1">How long brands should expect for delivery.</p>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="text-xs text-gray-500 mb-1 block">Past brand partnerships</label>
+                <input value={pastBrands} onChange={e => setPastBrands(e.target.value)} placeholder="e.g. Nike, Honey Stinger, Gameplan Skincare"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                <p className="text-xs text-gray-400 mt-1">Comma-separated. Shown as credential badges on your public card.</p>
+              </div>
+
               <div className="mb-4">
                 <label className="text-xs text-gray-500 mb-1 block">Brand deal terms & requirements</label>
                 <textarea
@@ -379,8 +441,9 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
                   placeholder="e.g. 50% deposit required upfront. No alcohol or gambling brands. Usage rights limited to 30 days unless negotiated separately. All content subject to creator approval before posting."
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
                 />
-                <p className="text-xs text-gray-400 mt-1">Shown on your public rate card above the booking form. Use this to set expectations before brands submit requests.</p>
+                <p className="text-xs text-gray-400 mt-1">Shown on your public rate card above the booking form.</p>
               </div>
+
               <div className="flex items-center justify-between pt-2">
                 {profileError && <p className="text-sm text-red-600">{profileError}</p>}
                 {profileSaved && !profileError && <p className="text-sm text-emerald-600">✓ Saved</p>}
