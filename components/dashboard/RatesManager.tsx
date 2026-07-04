@@ -412,10 +412,10 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
 
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                  <label className="text-xs text-gray-500 mb-1 block">Avg. monthly views</label>
-                  <input value={avgMonthlyViews} onChange={e => setAvgMonthlyViews(e.target.value)} type="number" min="0" placeholder="e.g. 3800000"
+                  <label className="text-xs text-gray-500 mb-1 block">Avg. views per video (Instagram)</label>
+                  <input value={avgMonthlyViews} onChange={e => setAvgMonthlyViews(e.target.value)} type="number" min="0" placeholder="e.g. 125000"
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-                  <p className="text-xs text-gray-400 mt-1">Total views across all content last 30 days.</p>
+                  <p className="text-xs text-gray-400 mt-1">Your typical per-video view count. Check your last 5–10 posts and estimate the average.</p>
                 </div>
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">Standard turnaround (days)</label>
