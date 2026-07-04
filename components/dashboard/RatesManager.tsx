@@ -51,6 +51,7 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
   const [error, setError] = useState('')
   const [followers, setFollowers] = useState(String(profile.follower_count))
   const [engagement, setEngagement] = useState(String(profile.engagement_rate))
+  const [avgMonthlyViews, setAvgMonthlyViews] = useState(String((profile as any).avg_monthly_views ?? ''))
   const [inquiries, setInquiries] = useState(initialInquiries)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [displayName, setDisplayName] = useState(profile.display_name ?? '')
@@ -64,7 +65,6 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
   const [profileSaving, startProfileSave] = useTransition()
   const [profileSaved, setProfileSaved] = useState(false)
   const [profileError, setProfileError] = useState('')
-  const [avgMonthlyViews, setAvgMonthlyViews] = useState(String((profile as any).avg_monthly_views ?? ''))
   const [pastBrands, setPastBrands] = useState((profile as any).past_brands ?? '')
   const [contentNiche, setContentNiche] = useState((profile as any).content_niche ?? '')
   const [turnaroundDays, setTurnaroundDays] = useState(String((profile as any).turnaround_days ?? ''))
@@ -100,10 +100,12 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
       }
       const followerNum = parseInt(followers) || profile.follower_count
       const engagementNum = parseFloat(engagement) || profile.engagement_rate
+      const viewsNum = avgMonthlyViews ? parseInt(avgMonthlyViews) : null
       await supabase.from('profiles').update({
         follower_count: followerNum,
         engagement_rate: engagementNum,
-      }).eq('id', profile.id)
+        avg_monthly_views: viewsNum,
+      } as any).eq('id', profile.id)
       setDirty(new Set())
       setMetricsDirty(false)
       setSaved(true)
@@ -158,7 +160,6 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
         tiktok_handle: tiktokHandle,
         youtube_handle: youtubeHandle,
         custom_terms: customTerms || null,
-        avg_monthly_views: avgMonthlyViews ? parseInt(avgMonthlyViews) : null,
         past_brands: pastBrands || null,
         content_niche: contentNiche || null,
         turnaround_days: turnaroundDays ? parseInt(turnaroundDays) : null,
@@ -215,20 +216,27 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
           </span>
         </div>
 
+        {/* Metrics card — pricing inputs together */}
         <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-6">
-          <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Update your metrics</p>
-          <div className="flex gap-4">
-            <div className="flex-1">
+          <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Update your pricing metrics</p>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
               <label className="text-xs text-gray-500 mb-1 block">Total followers</label>
               <input value={followers} onChange={e => handleMetricChange(setFollowers, e.target.value)} type="number" min="0"
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
             </div>
-            <div className="flex-1">
+            <div>
               <label className="text-xs text-gray-500 mb-1 block">Engagement rate %</label>
               <input value={engagement} onChange={e => handleMetricChange(setEngagement, e.target.value)} type="number" min="0" max="100" step="0.1"
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
             </div>
+            <div>
+              <label className="text-xs text-gray-500 mb-1 block">Avg. views per video</label>
+              <input value={avgMonthlyViews} onChange={e => handleMetricChange(setAvgMonthlyViews, e.target.value)} type="number" min="0" placeholder="e.g. 125000"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+            </div>
           </div>
+          <p className="text-xs text-gray-400 mt-2">Avg. views: check your last 5–10 Instagram posts and estimate the per-video average. Affects your pricing.</p>
         </div>
 
         <div className="flex gap-1 mb-6 bg-gray-100 p-1 rounded-xl w-fit">
@@ -410,19 +418,11 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="text-xs text-gray-500 mb-1 block">Avg. views per video (Instagram)</label>
-                  <input value={avgMonthlyViews} onChange={e => setAvgMonthlyViews(e.target.value)} type="number" min="0" placeholder="e.g. 125000"
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-                  <p className="text-xs text-gray-400 mt-1">Your typical per-video view count. Check your last 5–10 posts and estimate the average.</p>
-                </div>
-                <div>
-                  <label className="text-xs text-gray-500 mb-1 block">Standard turnaround (days)</label>
-                  <input value={turnaroundDays} onChange={e => setTurnaroundDays(e.target.value)} type="number" min="1" max="90" placeholder="e.g. 7"
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
-                  <p className="text-xs text-gray-400 mt-1">How long brands should expect for delivery.</p>
-                </div>
+              <div className="mb-4">
+                <label className="text-xs text-gray-500 mb-1 block">Standard turnaround (days)</label>
+                <input value={turnaroundDays} onChange={e => setTurnaroundDays(e.target.value)} type="number" min="1" max="90" placeholder="e.g. 7"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                <p className="text-xs text-gray-400 mt-1">How long brands should expect for delivery.</p>
               </div>
 
               <div className="mb-4">
