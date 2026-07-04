@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient, type Profile, type RateConfigRow } from '@/lib/supabase-browser'
-import { calculatePrice, buildQuote, formatCents, ADDON_RATES, type AddonKey } from '@/lib/pricing'
+import { calculatePrice, buildQuote, formatCents, ADDON_RATES, NICHE_KEY_MAP, type AddonKey } from '@/lib/pricing'
 
 interface Props {
   profile:      Profile
@@ -41,17 +41,17 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
     })
   }, [profile.id])
 
-  const selectedConfigs = rateConfigs.filter(c => selected[c.id])
-  const customTerms = (profile as any).custom_terms as string | null
-  const avgMonthlyViews = (profile as any).avg_monthly_views as number | null
-  const pastBrands = (profile as any).past_brands as string | null
-  const contentNiche = (profile as any).content_niche as string | null
-  const turnaroundDays = (profile as any).turnaround_days as number | null
-
-  const pastBrandList = pastBrands ? pastBrands.split(',').map((b: string) => b.trim()).filter(Boolean) : []
+  const selectedConfigs  = rateConfigs.filter(c => selected[c.id])
+  const customTerms      = (profile as any).custom_terms as string | null
+  const avgMonthlyViews  = (profile as any).avg_monthly_views as number | null
+  const pastBrands       = (profile as any).past_brands as string | null
+  const contentNiche     = (profile as any).content_niche as string | null
+  const turnaroundDays   = (profile as any).turnaround_days as number | null
+  const pastBrandList    = pastBrands ? pastBrands.split(',').map((b: string) => b.trim()).filter(Boolean) : []
+  const nicheKey         = contentNiche ? (NICHE_KEY_MAP[contentNiche] ?? null) : null
 
   const quote = selectedConfigs.length > 0
-    ? buildQuote(profile.follower_count, profile.engagement_rate, selectedConfigs, addons)
+    ? buildQuote(profile.follower_count, profile.engagement_rate, selectedConfigs, addons, nicheKey, avgMonthlyViews)
     : null
 
   function toggleConfig(id: string) {
@@ -178,14 +178,14 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
           />
           <StatTile value={formatFollowers(Math.round(profile.follower_count * profile.engagement_rate / 100))} label="Est. reach" />
           {avgMonthlyViews && (
-            <StatTile value={formatFollowers(avgMonthlyViews)} label="Avg. monthly views" highlight />
+            <StatTile value={formatFollowers(avgMonthlyViews)} label="Avg. views/video" highlight />
           )}
         </div>
 
         {showBonusInfo && (
           <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 mb-4 text-xs text-emerald-800 leading-relaxed">
             <strong>What is Bonus Tier pricing?</strong><br/>
-            This creator's engagement rate exceeds 3%, meaning their audience is significantly more active than average. Bonus tier pricing applies a 1.5x multiplier to base rates, reflecting the higher commercial value of a genuinely engaged audience vs. follower count alone.
+            This creator's engagement rate exceeds 3%, meaning their audience is significantly more active than average. Bonus tier pricing applies a multiplier to base rates, reflecting the higher commercial value of a genuinely engaged audience vs. follower count alone.
           </div>
         )}
 
@@ -209,7 +209,7 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Select deliverables</p>
           </div>
           {rateConfigs.map(cfg => {
-            const result = calculatePrice(profile.follower_count, profile.engagement_rate, cfg.multiplier, cfg.manual_override_cents, cfg.post_type)
+            const result = calculatePrice(profile.follower_count, profile.engagement_rate, cfg.multiplier, cfg.manual_override_cents, cfg.post_type, nicheKey, avgMonthlyViews)
             const isActive = !!selected[cfg.id]
             return (
               <button key={cfg.id} onClick={() => toggleConfig(cfg.id)}
