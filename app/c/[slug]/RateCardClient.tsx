@@ -43,6 +43,12 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
 
   const selectedConfigs = rateConfigs.filter(c => selected[c.id])
   const customTerms = (profile as any).custom_terms as string | null
+  const avgMonthlyViews = (profile as any).avg_monthly_views as number | null
+  const pastBrands = (profile as any).past_brands as string | null
+  const contentNiche = (profile as any).content_niche as string | null
+  const turnaroundDays = (profile as any).turnaround_days as number | null
+
+  const pastBrandList = pastBrands ? pastBrands.split(',').map((b: string) => b.trim()).filter(Boolean) : []
 
   const quote = selectedConfigs.length > 0
     ? buildQuote(profile.follower_count, profile.engagement_rate, selectedConfigs, addons)
@@ -112,6 +118,7 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
 
       <div className="max-w-xl mx-auto px-4 py-8 pb-16">
 
+        {/* Profile header */}
         <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
           <div className="flex items-start justify-between gap-2 mb-3">
             <div className="flex items-center gap-3 min-w-0">
@@ -124,12 +131,17 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
               </div>
               <div className="min-w-0">
                 <h1 className="font-semibold text-gray-900 leading-tight">{profile.display_name}</h1>
-                <span className="inline-flex items-center gap-1 text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full mt-1">
-                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  Verified
-                </span>
+                <div className="flex items-center gap-2 flex-wrap mt-1">
+                  <span className="inline-flex items-center gap-1 text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Verified
+                  </span>
+                  {contentNiche && (
+                    <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{contentNiche}</span>
+                  )}
+                </div>
               </div>
             </div>
             <div className="text-right text-xs text-gray-400 flex-shrink-0">
@@ -140,19 +152,23 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
           {(profile.instagram_handle || profile.tiktok_handle) && (
             <div className="flex items-center gap-3 mb-1">
               {profile.instagram_handle && (
-                <span className="text-xs text-gray-400">{profile.instagram_handle}</span>
+                <span className="text-xs text-gray-400">@{profile.instagram_handle}</span>
               )}
               {profile.tiktok_handle && (
-                <span className="text-xs text-gray-400">{profile.tiktok_handle}</span>
+                <span className="text-xs text-gray-400">@{profile.tiktok_handle}</span>
               )}
             </div>
           )}
           {profile.bio && (
-            <p className="text-sm text-gray-500">{profile.bio}</p>
+            <p className="text-sm text-gray-500 mt-1">{profile.bio}</p>
+          )}
+          {turnaroundDays && (
+            <p className="text-xs text-gray-400 mt-2">⏱ Standard turnaround: <span className="text-gray-600 font-medium">{turnaroundDays} days</span></p>
           )}
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mb-4">
+        {/* Stats */}
+        <div className={`grid gap-3 mb-4 ${avgMonthlyViews ? 'grid-cols-4' : 'grid-cols-3'}`}>
           <StatTile value={formatFollowers(profile.follower_count)} label="Followers" />
           <StatTile
             value={`${profile.engagement_rate.toFixed(1)}%`}
@@ -160,7 +176,10 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
             highlight={profile.engagement_rate >= 3}
             onInfoClick={profile.engagement_rate >= 3 ? () => setShowBonusInfo(v => !v) : undefined}
           />
-          <StatTile value={`${Math.round(profile.follower_count * profile.engagement_rate / 100).toLocaleString()}`} label="Est. reach" />
+          <StatTile value={formatFollowers(Math.round(profile.follower_count * profile.engagement_rate / 100))} label="Est. reach" />
+          {avgMonthlyViews && (
+            <StatTile value={formatFollowers(avgMonthlyViews)} label="Avg. monthly views" highlight />
+          )}
         </div>
 
         {showBonusInfo && (
@@ -170,6 +189,21 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
           </div>
         )}
 
+        {/* Past brand partnerships */}
+        {pastBrandList.length > 0 && (
+          <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
+            <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Brand partnerships</p>
+            <div className="flex flex-wrap gap-2">
+              {pastBrandList.map((brand: string) => (
+                <span key={brand} className="px-3 py-1 bg-gray-50 border border-gray-200 rounded-full text-xs font-medium text-gray-700">
+                  {brand}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Deliverables */}
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
           <div className="px-5 py-3.5 border-b border-gray-100">
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Select deliverables</p>
@@ -201,6 +235,7 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
           })}
         </div>
 
+        {/* Add-ons */}
         <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
           <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Add-ons</p>
           <div className="space-y-2">
@@ -219,6 +254,7 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
           </div>
         </div>
 
+        {/* Quote */}
         {quote && (
           <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Campaign quote</p>
@@ -243,6 +279,7 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
           </div>
         )}
 
+        {/* Custom terms */}
         {customTerms && (
           <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-4">
             <p className="text-xs font-medium text-amber-700 uppercase tracking-wider mb-2">Brand deal terms</p>
@@ -250,6 +287,7 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
           </div>
         )}
 
+        {/* Booking form */}
         <div className="bg-white rounded-2xl border border-gray-200 p-5">
           <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-4">Send booking request</p>
           {submitted ? (
@@ -304,7 +342,7 @@ function StatTile({ value, label, highlight, onInfoClick }: { value: string; lab
     <div className="bg-white rounded-xl border border-gray-200 px-3 py-3 text-center">
       <p className={`text-lg font-semibold ${highlight ? 'text-emerald-600' : 'text-gray-900'}`}>{value}</p>
       <p className="text-xs text-gray-400 mt-0.5">{label}</p>
-      {highlight && (
+      {highlight && onInfoClick && (
         <button type="button" onClick={onInfoClick}
           className="text-xs text-emerald-500 mt-0.5 hover:text-emerald-700 hover:underline cursor-pointer">
           Bonus tier
