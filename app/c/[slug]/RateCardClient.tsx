@@ -47,6 +47,7 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
   const pastBrands       = (profile as any).past_brands as string | null
   const contentNiche     = (profile as any).content_niche as string | null
   const turnaroundDays   = (profile as any).turnaround_days as number | null
+  const bannerUrl        = (profile as any).banner_url as string | null
   const pastBrandList    = pastBrands ? pastBrands.split(',').map((b: string) => b.trim()).filter(Boolean) : []
   const nicheKey         = contentNiche ? (NICHE_KEY_MAP[contentNiche] ?? null) : null
 
@@ -119,52 +120,62 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
       <div className="max-w-xl mx-auto px-4 py-8 pb-16">
 
         {/* Profile header */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
-          <div className="flex items-start justify-between gap-2 mb-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 font-semibold text-lg flex-shrink-0 overflow-hidden">
-                {profile.avatar_url ? (
-                  <img src={profile.avatar_url} alt={profile.display_name} className="w-full h-full object-cover" />
-                ) : (
-                  initials
-                )}
-              </div>
-              <div className="min-w-0">
-                <h1 className="font-semibold text-gray-900 leading-tight">{profile.display_name}</h1>
-                <div className="flex items-center gap-2 flex-wrap mt-1">
-                  <span className="inline-flex items-center gap-1 text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full">
-                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    Verified
-                  </span>
-                  {contentNiche && (
-                    <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{contentNiche}</span>
+        <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
+
+          {/* Banner image */}
+          {bannerUrl && (
+            <div className="w-full h-36 overflow-hidden">
+              <img src={bannerUrl} alt="Profile banner" className="w-full h-full object-cover" />
+            </div>
+          )}
+
+          <div className="p-5">
+            <div className="flex items-start justify-between gap-2 mb-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className={`w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 font-semibold text-lg flex-shrink-0 overflow-hidden border-2 border-white ${bannerUrl ? '-mt-8 shadow-md' : ''}`}>
+                  {profile.avatar_url ? (
+                    <img src={profile.avatar_url} alt={profile.display_name} className="w-full h-full object-cover" />
+                  ) : (
+                    initials
                   )}
                 </div>
+                <div className="min-w-0">
+                  <h1 className="font-semibold text-gray-900 leading-tight">{profile.display_name}</h1>
+                  <div className="flex items-center gap-2 flex-wrap mt-1">
+                    <span className="inline-flex items-center gap-1 text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full">
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Verified
+                    </span>
+                    {contentNiche && (
+                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{contentNiche}</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="text-right text-xs text-gray-400 flex-shrink-0">
+                Live rates<br/>
+                <span className="text-emerald-600">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
               </div>
             </div>
-            <div className="text-right text-xs text-gray-400 flex-shrink-0">
-              Live rates<br/>
-              <span className="text-emerald-600">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-            </div>
+            {(profile.instagram_handle || profile.tiktok_handle) && (
+              <div className="flex items-center gap-3 mb-1">
+                {profile.instagram_handle && (
+                  <span className="text-xs text-gray-400">@{profile.instagram_handle}</span>
+                )}
+                {profile.tiktok_handle && (
+                  <span className="text-xs text-gray-400">@{profile.tiktok_handle}</span>
+                )}
+              </div>
+            )}
+            {profile.bio && (
+              <p className="text-sm text-gray-500 mt-1">{profile.bio}</p>
+            )}
+            {turnaroundDays && (
+              <p className="text-xs text-gray-400 mt-2">⏱ Standard turnaround: <span className="text-gray-600 font-medium">{turnaroundDays} days</span></p>
+            )}
           </div>
-          {(profile.instagram_handle || profile.tiktok_handle) && (
-            <div className="flex items-center gap-3 mb-1">
-              {profile.instagram_handle && (
-                <span className="text-xs text-gray-400">@{profile.instagram_handle}</span>
-              )}
-              {profile.tiktok_handle && (
-                <span className="text-xs text-gray-400">@{profile.tiktok_handle}</span>
-              )}
-            </div>
-          )}
-          {profile.bio && (
-            <p className="text-sm text-gray-500 mt-1">{profile.bio}</p>
-          )}
-          {turnaroundDays && (
-            <p className="text-xs text-gray-400 mt-2">⏱ Standard turnaround: <span className="text-gray-600 font-medium">{turnaroundDays} days</span></p>
-          )}
         </div>
 
         {/* Stats */}
