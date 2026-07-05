@@ -61,7 +61,9 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
   const [youtubeHandle, setYoutubeHandle] = useState(profile.youtube_handle ?? '')
   const [customTerms, setCustomTerms] = useState((profile as any).custom_terms ?? '')
   const [avatarUrl, setAvatarUrl] = useState<string | null>(profile.avatar_url ?? null)
+  const [bannerUrl, setBannerUrl] = useState<string | null>((profile as any).banner_url ?? null)
   const [uploading, setUploading] = useState(false)
+  const [uploadingBanner, setUploadingBanner] = useState(false)
   const [profileSaving, startProfileSave] = useTransition()
   const [profileSaved, setProfileSaved] = useState(false)
   const [profileError, setProfileError] = useState('')
@@ -150,6 +152,32 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
     setUploading(false)
   }
 
+  async function handleBannerUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingBanner(true)
+    setProfileError('')
+    const fileExt = file.name.split('.').pop()
+    const filePath = `${profile.id}/banner.${fileExt}`
+    const { error: uploadError } = await supabase.storage.from('banners').upload(filePath, file, { upsert: true })
+    if (uploadError) {
+      setProfileError(`Banner upload failed: ${uploadError.message}`)
+      setUploadingBanner(false)
+      return
+    }
+    const { data: publicUrlData } = supabase.storage.from('banners').getPublicUrl(filePath)
+    const newBannerUrl = `${publicUrlData.publicUrl}?t=${Date.now()}`
+    const { error: updateError } = await supabase.from('profiles').update({ banner_url: newBannerUrl } as any).eq('id', profile.id)
+    if (updateError) {
+      setProfileError(`Saved banner but failed to update profile: ${updateError.message}`)
+    } else {
+      setBannerUrl(newBannerUrl)
+      setProfileSaved(true)
+      setTimeout(() => setProfileSaved(false), 3000)
+    }
+    setUploadingBanner(false)
+  }
+
   function handleProfileSave() {
     setProfileError('')
     startProfileSave(async () => {
@@ -216,7 +244,7 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
           </span>
         </div>
 
-        {/* Metrics card — pricing inputs together */}
+        {/* Metrics card */}
         <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-6">
           <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Update your pricing metrics</p>
           <div className="grid grid-cols-3 gap-4">
@@ -360,6 +388,27 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
           <div className="space-y-6">
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-4">Public profile</p>
+
+              {/* Banner upload */}
+              <div className="mb-6">
+                <label className="text-xs text-gray-500 mb-1 block">Banner image</label>
+                <div className="w-full h-28 rounded-xl bg-gray-100 overflow-hidden border border-gray-200 mb-2">
+                  {bannerUrl ? (
+                    <img src={bannerUrl} alt="Banner" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <span className="text-xs text-gray-400">No banner image</span>
+                    </div>
+                  )}
+                </div>
+                <label className="inline-block px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 cursor-pointer">
+                  {uploadingBanner ? 'Uploading…' : bannerUrl ? 'Change banner' : 'Upload banner'}
+                  <input type="file" accept="image/*" onChange={handleBannerUpload} disabled={uploadingBanner} className="hidden" />
+                </label>
+                <p className="text-xs text-gray-400 mt-1">Shown as a full-width header on your public rate card. Best size: 1200×400px.</p>
+              </div>
+
+              {/* Avatar upload */}
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-16 h-16 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center flex-shrink-0 border border-gray-200">
                   {avatarUrl ? (
