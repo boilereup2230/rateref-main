@@ -61,9 +61,11 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
   const [youtubeHandle, setYoutubeHandle] = useState(profile.youtube_handle ?? '')
   const [customTerms, setCustomTerms] = useState((profile as any).custom_terms ?? '')
   const [avatarUrl, setAvatarUrl] = useState<string | null>(profile.avatar_url ?? null)
-  const [bannerUrl, setBannerUrl] = useState<string | null>((profile as any).banner_url ?? null)
+  const [headerPhotoUrl, setHeaderPhotoUrl] = useState<string | null>((profile as any).header_photo_url ?? null)
+  const [headerVideoUrl, setHeaderVideoUrl] = useState<string | null>((profile as any).header_video_url ?? null)
   const [uploading, setUploading] = useState(false)
-  const [uploadingBanner, setUploadingBanner] = useState(false)
+  const [uploadingHeaderPhoto, setUploadingHeaderPhoto] = useState(false)
+  const [uploadingHeaderVideo, setUploadingHeaderVideo] = useState(false)
   const [profileSaving, startProfileSave] = useTransition()
   const [profileSaved, setProfileSaved] = useState(false)
   const [profileError, setProfileError] = useState('')
@@ -134,48 +136,57 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
     const fileExt = file.name.split('.').pop()
     const filePath = `${profile.id}/avatar.${fileExt}`
     const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true })
-    if (uploadError) {
-      setProfileError(`Upload failed: ${uploadError.message}`)
-      setUploading(false)
-      return
-    }
+    if (uploadError) { setProfileError(`Upload failed: ${uploadError.message}`); setUploading(false); return }
     const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(filePath)
-    const newAvatarUrl = `${publicUrlData.publicUrl}?t=${Date.now()}`
-    const { error: updateError } = await supabase.from('profiles').update({ avatar_url: newAvatarUrl }).eq('id', profile.id)
-    if (updateError) {
-      setProfileError(`Saved image but failed to update profile: ${updateError.message}`)
-    } else {
-      setAvatarUrl(newAvatarUrl)
-      setProfileSaved(true)
-      setTimeout(() => setProfileSaved(false), 3000)
-    }
+    const newUrl = `${publicUrlData.publicUrl}?t=${Date.now()}`
+    const { error: updateError } = await supabase.from('profiles').update({ avatar_url: newUrl }).eq('id', profile.id)
+    if (updateError) { setProfileError(`Saved image but failed to update profile: ${updateError.message}`) }
+    else { setAvatarUrl(newUrl); setProfileSaved(true); setTimeout(() => setProfileSaved(false), 3000) }
     setUploading(false)
   }
 
-  async function handleBannerUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleHeaderPhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-    setUploadingBanner(true)
+    setUploadingHeaderPhoto(true)
     setProfileError('')
     const fileExt = file.name.split('.').pop()
-    const filePath = `${profile.id}/banner.${fileExt}`
-    const { error: uploadError } = await supabase.storage.from('banners').upload(filePath, file, { upsert: true })
-    if (uploadError) {
-      setProfileError(`Banner upload failed: ${uploadError.message}`)
-      setUploadingBanner(false)
-      return
-    }
-    const { data: publicUrlData } = supabase.storage.from('banners').getPublicUrl(filePath)
-    const newBannerUrl = `${publicUrlData.publicUrl}?t=${Date.now()}`
-    const { error: updateError } = await supabase.from('profiles').update({ banner_url: newBannerUrl } as any).eq('id', profile.id)
-    if (updateError) {
-      setProfileError(`Saved banner but failed to update profile: ${updateError.message}`)
-    } else {
-      setBannerUrl(newBannerUrl)
-      setProfileSaved(true)
-      setTimeout(() => setProfileSaved(false), 3000)
-    }
-    setUploadingBanner(false)
+    const filePath = `${profile.id}/header-photo.${fileExt}`
+    const { error: uploadError } = await supabase.storage.from('headers').upload(filePath, file, { upsert: true })
+    if (uploadError) { setProfileError(`Upload failed: ${uploadError.message}`); setUploadingHeaderPhoto(false); return }
+    const { data: publicUrlData } = supabase.storage.from('headers').getPublicUrl(filePath)
+    const newUrl = `${publicUrlData.publicUrl}?t=${Date.now()}`
+    const { error: updateError } = await supabase.from('profiles').update({ header_photo_url: newUrl } as any).eq('id', profile.id)
+    if (updateError) { setProfileError(`Saved photo but failed to update profile: ${updateError.message}`) }
+    else { setHeaderPhotoUrl(newUrl); setProfileSaved(true); setTimeout(() => setProfileSaved(false), 3000) }
+    setUploadingHeaderPhoto(false)
+  }
+
+  async function handleHeaderVideoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (file.size > 50 * 1024 * 1024) { setProfileError('Video must be under 50MB.'); return }
+    setUploadingHeaderVideo(true)
+    setProfileError('')
+    const filePath = `${profile.id}/header-video.mp4`
+    const { error: uploadError } = await supabase.storage.from('headers').upload(filePath, file, { upsert: true, contentType: 'video/mp4' })
+    if (uploadError) { setProfileError(`Upload failed: ${uploadError.message}`); setUploadingHeaderVideo(false); return }
+    const { data: publicUrlData } = supabase.storage.from('headers').getPublicUrl(filePath)
+    const newUrl = `${publicUrlData.publicUrl}?t=${Date.now()}`
+    const { error: updateError } = await supabase.from('profiles').update({ header_video_url: newUrl } as any).eq('id', profile.id)
+    if (updateError) { setProfileError(`Saved video but failed to update profile: ${updateError.message}`) }
+    else { setHeaderVideoUrl(newUrl); setProfileSaved(true); setTimeout(() => setProfileSaved(false), 3000) }
+    setUploadingHeaderVideo(false)
+  }
+
+  async function handleDeleteHeaderPhoto() {
+    const { error } = await supabase.from('profiles').update({ header_photo_url: null } as any).eq('id', profile.id)
+    if (!error) { setHeaderPhotoUrl(null); setProfileSaved(true); setTimeout(() => setProfileSaved(false), 3000) }
+  }
+
+  async function handleDeleteHeaderVideo() {
+    const { error } = await supabase.from('profiles').update({ header_video_url: null } as any).eq('id', profile.id)
+    if (!error) { setHeaderVideoUrl(null); setProfileSaved(true); setTimeout(() => setProfileSaved(false), 3000) }
   }
 
   function handleProfileSave() {
@@ -218,12 +229,8 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
           <span className="text-sm text-gray-500">{profile.display_name}</span>
         </div>
         <div className="flex items-center gap-3">
-          <a href={publicUrl} target="_blank" className="text-sm text-emerald-600 hover:underline flex items-center gap-1">
-            View my card ↗
-          </a>
-          <button onClick={signOut} className="text-sm text-gray-400 hover:text-gray-600">
-            Sign out
-          </button>
+          <a href={publicUrl} target="_blank" className="text-sm text-emerald-600 hover:underline flex items-center gap-1">View my card ↗</a>
+          <button onClick={signOut} className="text-sm text-gray-400 hover:text-gray-600">Sign out</button>
         </div>
       </header>
 
@@ -244,7 +251,6 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
           </span>
         </div>
 
-        {/* Metrics card */}
         <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-6">
           <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Update your pricing metrics</p>
           <div className="grid grid-cols-3 gap-4">
@@ -341,9 +347,7 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
                 <div className="mt-4 flex items-center justify-center gap-2">
                   <input readOnly value={publicUrl} className="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 w-72" />
                   <button onClick={() => navigator.clipboard.writeText(publicUrl)}
-                    className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50">
-                    Copy
-                  </button>
+                    className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50">Copy</button>
                 </div>
               </div>
             )}
@@ -389,23 +393,52 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-4">Public profile</p>
 
-              {/* Banner upload */}
-              <div className="mb-6">
-                <label className="text-xs text-gray-500 mb-1 block">Banner image</label>
-                <div className="w-full h-28 rounded-xl bg-gray-100 overflow-hidden border border-gray-200 mb-2">
-                  {bannerUrl ? (
-                    <img src={bannerUrl} alt="Banner" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-xs text-gray-400">No banner image</span>
+              {/* Header media */}
+              <div className="mb-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                <p className="text-xs font-medium text-gray-700 mb-1">Header media</p>
+                <p className="text-xs text-gray-400 mb-4">Upload a photo or short video clip that plays at the top of your rate card. Any photo format works — vertical, square, or landscape. If nothing is uploaded, your card shows a clean gradient based on your niche.</p>
+
+                {/* Header photo */}
+                <div className="mb-4">
+                  <p className="text-xs text-gray-500 mb-2">Photo</p>
+                  {headerPhotoUrl && (
+                    <div className="relative w-full h-24 rounded-lg overflow-hidden border border-gray-200 mb-2">
+                      <img src={headerPhotoUrl} alt="Header" className="w-full h-full object-cover" />
                     </div>
                   )}
+                  <div className="flex items-center gap-2">
+                    <label className="inline-block px-3 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-600 hover:bg-gray-100 cursor-pointer">
+                      {uploadingHeaderPhoto ? 'Uploading…' : headerPhotoUrl ? 'Change photo' : 'Upload photo'}
+                      <input type="file" accept="image/*" onChange={handleHeaderPhotoUpload} disabled={uploadingHeaderPhoto} className="hidden" />
+                    </label>
+                    {headerPhotoUrl && (
+                      <button onClick={handleDeleteHeaderPhoto} className="px-3 py-1.5 rounded-lg border border-red-200 text-xs text-red-500 hover:bg-red-50">
+                        Remove
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <label className="inline-block px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 cursor-pointer">
-                  {uploadingBanner ? 'Uploading…' : bannerUrl ? 'Change banner' : 'Upload banner'}
-                  <input type="file" accept="image/*" onChange={handleBannerUpload} disabled={uploadingBanner} className="hidden" />
-                </label>
-                <p className="text-xs text-gray-400 mt-1">Shown as a full-width header on your public rate card. Best size: 1200×400px.</p>
+
+                {/* Header video */}
+                <div>
+                  <p className="text-xs text-gray-500 mb-2">Video clip <span className="text-gray-400">(MP4, max 50MB — plays muted on loop)</span></p>
+                  {headerVideoUrl && (
+                    <div className="relative w-full h-24 rounded-lg overflow-hidden border border-gray-200 mb-2 bg-black">
+                      <video src={headerVideoUrl} className="w-full h-full object-cover" muted loop playsInline autoPlay />
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <label className="inline-block px-3 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-600 hover:bg-gray-100 cursor-pointer">
+                      {uploadingHeaderVideo ? 'Uploading…' : headerVideoUrl ? 'Change video' : 'Upload video'}
+                      <input type="file" accept="video/mp4,video/mov,video/quicktime" onChange={handleHeaderVideoUpload} disabled={uploadingHeaderVideo} className="hidden" />
+                    </label>
+                    {headerVideoUrl && (
+                      <button onClick={handleDeleteHeaderVideo} className="px-3 py-1.5 rounded-lg border border-red-200 text-xs text-red-500 hover:bg-red-50">
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* Avatar upload */}
@@ -419,10 +452,10 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
                 </div>
                 <div>
                   <label className="inline-block px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 cursor-pointer">
-                    {uploading ? 'Uploading…' : 'Upload photo'}
+                    {uploading ? 'Uploading…' : 'Upload profile photo'}
                     <input type="file" accept="image/*" onChange={handleAvatarUpload} disabled={uploading} className="hidden" />
                   </label>
-                  <p className="text-xs text-gray-400 mt-1">Shown on your public rate card</p>
+                  <p className="text-xs text-gray-400 mt-1">Shown as your circular profile photo on your card</p>
                 </div>
               </div>
 
