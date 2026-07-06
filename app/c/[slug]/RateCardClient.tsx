@@ -364,6 +364,12 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
                   placeholder="Tell us about your campaign goals, timeline, or any specifics…" rows={3}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none" />
               </div>
+
+              {/* Legal disclaimer */}
+              <p className="text-xs text-gray-400 leading-relaxed">
+                Submitting this request does not constitute a binding agreement. All deals are negotiated directly between brand and creator. RateRef is not a party to any agreement and assumes no liability for transactions between brands and creators.
+              </p>
+
               {error && <p className="text-sm text-red-600">{error}</p>}
               <button type="submit" disabled={sending || selectedConfigs.length === 0}
                 className="w-full py-3 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
