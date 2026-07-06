@@ -105,6 +105,16 @@ function SetupForm() {
         await supabase.from('profiles').update({ avatar_url: newAvatarUrl }).eq('id', user.id)
       }
     }
+    const cardUrl = `${window.location.origin}/c/${form.slug}`
+    await fetch('/api/send-welcome', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        creatorEmail: user.email,
+        creatorName: form.display_name,
+        cardUrl,
+      }),
+    })
     router.push('/dashboard')
   }
 
