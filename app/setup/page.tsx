@@ -4,10 +4,28 @@ import { createClient } from '@/lib/supabase-browser'
 import { DEFAULT_RATE_CONFIGS } from '@/lib/pricing'
 import { useRouter, useSearchParams } from 'next/navigation'
 
+const NICHE_OPTIONS = [
+  { value: '', label: 'Select a niche…' },
+  { value: 'Sports & Fitness', label: 'Sports & Fitness' },
+  { value: 'Health & Wellness', label: 'Health & Wellness' },
+  { value: 'Nutrition & Food', label: 'Nutrition & Food' },
+  { value: 'Lifestyle', label: 'Lifestyle' },
+  { value: 'Fashion & Beauty', label: 'Fashion & Beauty' },
+  { value: 'Tech & SaaS', label: 'Tech & SaaS' },
+  { value: 'Business & Finance', label: 'Business & Finance' },
+  { value: 'Travel', label: 'Travel' },
+  { value: 'Gaming', label: 'Gaming' },
+  { value: 'Education', label: 'Education' },
+  { value: 'Entertainment', label: 'Entertainment' },
+  { value: 'Parenting & Family', label: 'Parenting & Family' },
+  { value: 'Other', label: 'Other' },
+]
+
 function SetupForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [form, setForm] = useState({ display_name:'', slug:'', bio:'', instagram_handle:'', tiktok_handle:'', youtube_handle:'', follower_count:'', engagement_rate:'' })
+  const [contentNiche, setContentNiche] = useState('')
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -69,7 +87,8 @@ function SetupForm() {
       tiktok_handle: form.tiktok_handle || null, youtube_handle: form.youtube_handle || null,
       follower_count: parseInt(form.follower_count) || 0,
       engagement_rate: parseFloat(form.engagement_rate) || 0, is_published: true,
-    })
+      content_niche: contentNiche || null,
+    } as any)
     if (profileError) { setError(profileError.message.includes('slug') ? 'That link is taken — try another.' : profileError.message); setLoading(false); return }
     await supabase.from('rate_configs').insert(DEFAULT_RATE_CONFIGS.map((cfg, i) => ({
       profile_id: user.id, post_type: cfg.post_type, label: cfg.label,
@@ -211,6 +230,19 @@ function SetupForm() {
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>Short bio</label>
                 <textarea name="bio" value={form.bio} onChange={handleChange} placeholder="Travel & lifestyle creator" rows={2}
                   style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '6px' }}>Content niche</label>
+                <select
+                  value={contentNiche}
+                  onChange={e => setContentNiche(e.target.value)}
+                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', outline: 'none', boxSizing: 'border-box', background: '#fff', color: contentNiche ? '#111827' : '#9ca3af' }}>
+                  {NICHE_OPTIONS.map(opt => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+                <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px' }}>Helps calibrate your rates and shown on your public card.</p>
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '16px' }}>
