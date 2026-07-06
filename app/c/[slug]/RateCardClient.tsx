@@ -21,6 +21,24 @@ const ADDON_DESCS: Record<AddonKey, string> = {
   rush:         'Delivery in under 48 hours',
 }
 
+const NICHE_GRADIENTS: Record<string, string> = {
+  'Sports & Fitness':   'linear-gradient(135deg, #0f6e56 0%, #1d9e75 60%, #5dcaa5 100%)',
+  'Health & Wellness':  'linear-gradient(135deg, #0f6e56 0%, #3b6d11 60%, #97c459 100%)',
+  'Nutrition & Food':   'linear-gradient(135deg, #854f0b 0%, #ba7517 60%, #ef9f27 100%)',
+  'Lifestyle':          'linear-gradient(135deg, #534ab7 0%, #7f77dd 60%, #afa9ec 100%)',
+  'Fashion & Beauty':   'linear-gradient(135deg, #993556 0%, #d4537e 60%, #ed93b1 100%)',
+  'Tech & SaaS':        'linear-gradient(135deg, #185fa5 0%, #378add 60%, #85b7eb 100%)',
+  'Business & Finance': 'linear-gradient(135deg, #3c3489 0%, #534ab7 60%, #7f77dd 100%)',
+  'Travel':             'linear-gradient(135deg, #0c447c 0%, #185fa5 60%, #378add 100%)',
+  'Gaming':             'linear-gradient(135deg, #534ab7 0%, #993556 60%, #d4537e 100%)',
+  'Education':          'linear-gradient(135deg, #185fa5 0%, #0f6e56 60%, #1d9e75 100%)',
+  'Entertainment':      'linear-gradient(135deg, #993556 0%, #534ab7 60%, #7f77dd 100%)',
+  'Parenting & Family': 'linear-gradient(135deg, #0f6e56 0%, #185fa5 60%, #378add 100%)',
+  'Other':              'linear-gradient(135deg, #444441 0%, #888780 60%, #b4b2a9 100%)',
+}
+
+const DEFAULT_GRADIENT = 'linear-gradient(135deg, #1d9e75 0%, #185fa5 100%)'
+
 export default function RateCardClient({ profile, rateConfigs, agencySource }: Props) {
   const supabase = createClient()
 
@@ -47,9 +65,12 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
   const pastBrands       = (profile as any).past_brands as string | null
   const contentNiche     = (profile as any).content_niche as string | null
   const turnaroundDays   = (profile as any).turnaround_days as number | null
-  const bannerUrl        = (profile as any).banner_url as string | null
+  const headerPhotoUrl   = (profile as any).header_photo_url as string | null
+  const headerVideoUrl   = (profile as any).header_video_url as string | null
   const pastBrandList    = pastBrands ? pastBrands.split(',').map((b: string) => b.trim()).filter(Boolean) : []
   const nicheKey         = contentNiche ? (NICHE_KEY_MAP[contentNiche] ?? null) : null
+  const headerGradient   = contentNiche ? (NICHE_GRADIENTS[contentNiche] ?? DEFAULT_GRADIENT) : DEFAULT_GRADIENT
+  const hasHeader        = !!(headerVideoUrl || headerPhotoUrl)
 
   const quote = selectedConfigs.length > 0
     ? buildQuote(profile.follower_count, profile.engagement_rate, selectedConfigs, addons, nicheKey, avgMonthlyViews)
@@ -122,43 +143,58 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
         {/* Profile header */}
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
 
-          {/* Banner image */}
-          {bannerUrl && (
-            <div className="w-full h-36 overflow-hidden">
-              <img src={bannerUrl} alt="Profile banner" className="w-full h-full object-cover" />
-            </div>
-          )}
-
-          <div className="p-5">
-            <div className="flex items-start justify-between gap-2 mb-3">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className={`w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 font-semibold text-lg flex-shrink-0 overflow-hidden border-2 border-white ${bannerUrl ? '-mt-8 shadow-md' : ''}`}>
+          {/* Header — video > photo > gradient */}
+          <div className="relative w-full h-40 overflow-hidden">
+            {headerVideoUrl ? (
+              <video
+                src={headerVideoUrl}
+                className="w-full h-full object-cover"
+                autoPlay muted loop playsInline
+              />
+            ) : headerPhotoUrl ? (
+              <img
+                src={headerPhotoUrl}
+                alt="Header"
+                className="w-full h-full object-cover object-center"
+              />
+            ) : (
+              <div className="w-full h-full" style={{ background: headerGradient }} />
+            )}
+            {/* Gradient scrim at bottom for text readability */}
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%)' }} />
+            {/* Name + badges overlaid on header */}
+            <div className="absolute bottom-0 left-0 right-0 px-5 pb-3 flex items-end justify-between">
+              <div className="flex items-end gap-3">
+                <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 font-semibold text-lg flex-shrink-0 overflow-hidden border-2 border-white mb-[-20px]">
                   {profile.avatar_url ? (
                     <img src={profile.avatar_url} alt={profile.display_name} className="w-full h-full object-cover" />
                   ) : (
                     initials
                   )}
                 </div>
-                <div className="min-w-0">
-                  <h1 className="font-semibold text-gray-900 leading-tight">{profile.display_name}</h1>
-                  <div className="flex items-center gap-2 flex-wrap mt-1">
-                    <span className="inline-flex items-center gap-1 text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full">
+                <div className="pb-1">
+                  <h1 className="font-semibold text-white text-base leading-tight" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>{profile.display_name}</h1>
+                  <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                    <span className="inline-flex items-center gap-1 text-xs bg-white/20 backdrop-blur text-white px-2 py-0.5 rounded-full">
                       <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                       Verified
                     </span>
                     {contentNiche && (
-                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{contentNiche}</span>
+                      <span className="text-xs bg-white/20 backdrop-blur text-white px-2 py-0.5 rounded-full">{contentNiche}</span>
                     )}
                   </div>
                 </div>
               </div>
-              <div className="text-right text-xs text-gray-400 flex-shrink-0">
-                Live rates<br/>
-                <span className="text-emerald-600">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+              <div className="text-right text-xs pb-1">
+                <span className="text-white/70">Live rates</span><br/>
+                <span className="text-emerald-300">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
               </div>
             </div>
+          </div>
+
+          <div className="px-5 pt-7 pb-4">
             {(profile.instagram_handle || profile.tiktok_handle) && (
               <div className="flex items-center gap-3 mb-1">
                 {profile.instagram_handle && (
