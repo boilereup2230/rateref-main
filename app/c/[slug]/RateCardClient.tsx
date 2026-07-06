@@ -22,7 +22,7 @@ const ADDON_DESCS: Record<AddonKey, string> = {
 }
 
 const NICHE_GRADIENTS: Record<string, string> = {
-  'Sports & Fitness':   'linear-gradient(135deg, #0f6e56 0%, #1d9e75 60%, #5dcaa5 100%)',
+  'Sports & Fitness':   'linear-gradient(135deg, #0a4f3d 0%, #0f6e56 40%, #1d9e75 100%)',
   'Health & Wellness':  'linear-gradient(135deg, #0f6e56 0%, #3b6d11 60%, #97c459 100%)',
   'Nutrition & Food':   'linear-gradient(135deg, #854f0b 0%, #ba7517 60%, #ef9f27 100%)',
   'Lifestyle':          'linear-gradient(135deg, #534ab7 0%, #7f77dd 60%, #afa9ec 100%)',
@@ -70,7 +70,6 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
   const pastBrandList    = pastBrands ? pastBrands.split(',').map((b: string) => b.trim()).filter(Boolean) : []
   const nicheKey         = contentNiche ? (NICHE_KEY_MAP[contentNiche] ?? null) : null
   const headerGradient   = contentNiche ? (NICHE_GRADIENTS[contentNiche] ?? DEFAULT_GRADIENT) : DEFAULT_GRADIENT
-  const hasHeader        = !!(headerVideoUrl || headerPhotoUrl)
 
   const quote = selectedConfigs.length > 0
     ? buildQuote(profile.follower_count, profile.engagement_rate, selectedConfigs, addons, nicheKey, avgMonthlyViews)
@@ -144,7 +143,7 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
 
           {/* Header — video > photo > gradient */}
-          <div className="relative w-full h-40 overflow-hidden">
+          <div className="relative w-full h-28 overflow-hidden">
             {headerVideoUrl ? (
               <video
                 src={headerVideoUrl}
@@ -160,20 +159,20 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
             ) : (
               <div className="w-full h-full" style={{ background: headerGradient }} />
             )}
-            {/* Gradient scrim at bottom for text readability */}
-            <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%)' }} />
-            {/* Name + badges overlaid on header */}
-            <div className="absolute bottom-0 left-0 right-0 px-5 pb-3 flex items-end justify-between">
-              <div className="flex items-end gap-3">
-                <div className="w-14 h-14 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 font-semibold text-lg flex-shrink-0 overflow-hidden border-2 border-white mb-[-20px]">
+            {/* Gradient scrim */}
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 60%)' }} />
+            {/* Name + badges + avatar overlaid */}
+            <div className="absolute bottom-0 left-0 right-0 px-5 pb-4 flex items-end justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 font-semibold text-base flex-shrink-0 overflow-hidden border-2 border-white shadow-sm">
                   {profile.avatar_url ? (
                     <img src={profile.avatar_url} alt={profile.display_name} className="w-full h-full object-cover" />
                   ) : (
                     initials
                   )}
                 </div>
-                <div className="pb-1">
-                  <h1 className="font-semibold text-white text-base leading-tight" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.4)' }}>{profile.display_name}</h1>
+                <div>
+                  <h1 className="font-semibold text-white text-sm leading-tight" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>{profile.display_name}</h1>
                   <div className="flex items-center gap-2 flex-wrap mt-0.5">
                     <span className="inline-flex items-center gap-1 text-xs bg-white/20 backdrop-blur text-white px-2 py-0.5 rounded-full">
                       <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -187,14 +186,14 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
                   </div>
                 </div>
               </div>
-              <div className="text-right text-xs pb-1">
+              <div className="text-right text-xs pb-0.5">
                 <span className="text-white/70">Live rates</span><br/>
                 <span className="text-emerald-300">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
               </div>
             </div>
           </div>
 
-          <div className="px-5 pt-7 pb-4">
+          <div className="px-5 pt-4 pb-4">
             {(profile.instagram_handle || profile.tiktok_handle) && (
               <div className="flex items-center gap-3 mb-1">
                 {profile.instagram_handle && (
