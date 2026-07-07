@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     await resend.emails.send({
       from: 'RateRef <notifications@rateref.co>',
       to: creatorEmail,
-      reply_to: contactEmail,
+      replyTo: contactEmail,
       subject: `${brandName} wants to book you`,
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 24px; color: #111;">
