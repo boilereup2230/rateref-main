@@ -72,6 +72,10 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
   const [pastBrands, setPastBrands] = useState((profile as any).past_brands ?? '')
   const [contentNiche, setContentNiche] = useState((profile as any).content_niche ?? '')
   const [turnaroundDays, setTurnaroundDays] = useState(String((profile as any).turnaround_days ?? ''))
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteConfirmText, setDeleteConfirmText] = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
 
   function updateConfig(id: string, patch: Partial<RateConfigRow>) {
     setConfigs(cs => cs.map(c => c.id === id ? { ...c, ...patch } : c))
@@ -212,6 +216,28 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
   async function signOut() {
     await supabase.auth.signOut()
     window.location.href = '/login'
+  }
+
+  async function handleDeleteAccount() {
+    if (deleteConfirmText !== 'DELETE') return
+    setDeleting(true)
+    setDeleteError('')
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { setDeleteError('Session expired — please log in again.'); setDeleting(false); return }
+    const res = await fetch('/api/delete-account', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    })
+    const data = await res.json()
+    if (!res.ok) {
+      setDeleteError(data.error || 'Failed to delete account. Please try again.')
+      setDeleting(false)
+      return
+    }
+    window.location.href = '/'
   }
 
   const engagementNum = parseFloat(engagement) || 0
@@ -548,6 +574,47 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
               <p className="text-xs text-gray-400">
                 Share this link in your Instagram bio, email signature, or DMs. Brands will see your live rates and can submit booking requests directly.
               </p>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-red-200 p-6">
+              <p className="text-sm font-medium text-red-600 mb-1">Danger zone</p>
+              <p className="text-xs text-gray-500 mb-4">Permanently delete your account, rate card, and all inquiry history. This cannot be undone.</p>
+
+              {!showDeleteConfirm && (
+                <button onClick={() => setShowDeleteConfirm(true)}
+                  className="px-4 py-2 rounded-lg border border-red-300 text-red-600 text-sm font-medium hover:bg-red-50 transition-colors">
+                  Delete my account
+                </button>
+              )}
+
+              {showDeleteConfirm && (
+                <div className="border border-red-200 rounded-xl p-4 bg-red-50">
+                  <p className="text-xs text-red-700 mb-3">
+                    Type <strong>DELETE</strong> below to permanently remove your account, rate card, and all inquiries.
+                  </p>
+                  <input
+                    value={deleteConfirmText}
+                    onChange={e => setDeleteConfirmText(e.target.value)}
+                    placeholder="Type DELETE"
+                    className="w-full px-3 py-2 border border-red-300 rounded-lg text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-red-400"
+                  />
+                  {deleteError && <p className="text-xs text-red-600 mb-3">{deleteError}</p>}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleDeleteAccount}
+                      disabled={deleteConfirmText !== 'DELETE' || deleting}
+                      className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-40 transition-colors">
+                      {deleting ? 'Deleting…' : 'Permanently delete'}
+                    </button>
+                    <button
+                      onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(''); setDeleteError('') }}
+                      disabled={deleting}
+                      className="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-100 transition-colors">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
