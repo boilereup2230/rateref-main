@@ -14,11 +14,21 @@ export async function POST(req: Request) {
     const day3 = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString()
     const day7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString()
 
+    const unsubscribeUrl = `https://rateref.co/unsubscribe?email=${encodeURIComponent(creatorEmail)}`
+
+    const unsubscribeFooter = `
+      <p style="color: #9ca3af; font-size: 12px;">You're receiving this because you created a RateRef account. <a href="https://rateref.co" style="color: #9ca3af;">rateref.co</a> · <a href="${unsubscribeUrl}" style="color: #9ca3af;">Unsubscribe</a></p>
+    `
+
     // Email 1 — immediate welcome
     await resend.emails.send({
       from: 'RateRef <notifications@rateref.co>',
       to: creatorEmail,
       subject: 'Your rate card is live 🎉',
+      headers: {
+        'List-Unsubscribe': `<${unsubscribeUrl}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
       html: `
         <div style="font-family: system-ui, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px 24px; color: #111827;">
           <div style="margin-bottom: 24px;">
@@ -29,17 +39,21 @@ export async function POST(req: Request) {
           <a href="${cardUrl}" style="display: inline-block; background: #059669; color: white; font-weight: 600; font-size: 14px; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-bottom: 24px;">View your rate card →</a>
           <p style="color: #6b7280; font-size: 13px; line-height: 1.6;">Your link: <a href="${cardUrl}" style="color: #059669;">${cardUrl}</a><br/>Share it in your Instagram bio, email signature, or DMs.</p>
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
-          <p style="color: #9ca3af; font-size: 12px;">You're receiving this because you created a RateRef account. <a href="https://rateref.co" style="color: #9ca3af;">rateref.co</a></p>
+          ${unsubscribeFooter}
         </div>
       `,
     })
 
     // Email 2 — day 3 — make your card stand out
-    await (resend.emails.send as any)({
+    await resend.emails.send({
       from: 'RateRef <notifications@rateref.co>',
       to: creatorEmail,
       subject: 'Make your card stand out to brands',
       scheduledAt: day3,
+      headers: {
+        'List-Unsubscribe': `<${unsubscribeUrl}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
       html: `
         <div style="font-family: system-ui, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px 24px; color: #111827;">
           <div style="margin-bottom: 24px;">
@@ -63,17 +77,21 @@ export async function POST(req: Request) {
           </div>
           <a href="https://rateref.co/dashboard" style="display: inline-block; background: #059669; color: white; font-weight: 600; font-size: 14px; padding: 12px 24px; border-radius: 8px; text-decoration: none;">Update your card →</a>
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
-          <p style="color: #9ca3af; font-size: 12px;">You're receiving this because you created a RateRef account. <a href="https://rateref.co" style="color: #9ca3af;">rateref.co</a></p>
+          ${unsubscribeFooter}
         </div>
       `,
     })
 
     // Email 3 — day 7 — share your link
-    await (resend.emails.send as any)({
+    await resend.emails.send({
       from: 'RateRef <notifications@rateref.co>',
       to: creatorEmail,
       subject: 'One move that gets you brand deals faster',
       scheduledAt: day7,
+      headers: {
+        'List-Unsubscribe': `<${unsubscribeUrl}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
       html: `
         <div style="font-family: system-ui, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px 24px; color: #111827;">
           <div style="margin-bottom: 24px;">
@@ -93,7 +111,7 @@ export async function POST(req: Request) {
           <a href="${cardUrl}" style="display: inline-block; background: #059669; color: white; font-weight: 600; font-size: 14px; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-bottom: 16px;">View your rate card →</a>
           <p style="color: #6b7280; font-size: 13px;">Your link: <a href="${cardUrl}" style="color: #059669;">${cardUrl}</a></p>
           <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;" />
-          <p style="color: #9ca3af; font-size: 12px;">You're receiving this because you created a RateRef account. <a href="https://rateref.co" style="color: #9ca3af;">rateref.co</a></p>
+          ${unsubscribeFooter}
         </div>
       `,
     })
