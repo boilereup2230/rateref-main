@@ -195,13 +195,16 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
           </div>
 
           <div className="px-5 pt-4 pb-4">
-            {(profile.instagram_handle || profile.tiktok_handle) && (
-              <div className="flex items-center gap-3 mb-1">
+            {(profile.instagram_handle || profile.tiktok_handle || profile.youtube_handle) && (
+              <div className="flex items-center gap-3 mb-1 flex-wrap">
                 {profile.instagram_handle && (
                   <span className="text-xs text-gray-400">@{profile.instagram_handle}</span>
                 )}
                 {profile.tiktok_handle && (
                   <span className="text-xs text-gray-400">@{profile.tiktok_handle}</span>
+                )}
+                {profile.youtube_handle && (
+                  <span className="text-xs text-gray-400">@{profile.youtube_handle}</span>
                 )}
               </div>
             )}
