@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
 import { NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -8,6 +9,22 @@ export async function POST(req: Request) {
     const { creatorEmail, creatorName, cardUrl } = await req.json()
     if (!creatorEmail || !creatorName || !cardUrl) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    }
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
+    // Check opt-out status before sending anything
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id, email_opted_out')
+      .eq('email', creatorEmail)
+      .single()
+
+    if ((profile as any)?.email_opted_out) {
+      return NextResponse.json({ success: true, skipped: true })
     }
 
     const now = new Date()
@@ -45,7 +62,7 @@ export async function POST(req: Request) {
     })
 
     // Email 2 — day 3 — make your card stand out
-    await resend.emails.send({
+    const email2 = await resend.emails.send({
       from: 'RateRef <notifications@rateref.co>',
       to: creatorEmail,
       subject: 'Make your card stand out to brands',
@@ -83,7 +100,7 @@ export async function POST(req: Request) {
     })
 
     // Email 3 — day 7 — share your link
-    await resend.emails.send({
+    const email3 = await resend.emails.send({
       from: 'RateRef <notifications@rateref.co>',
       to: creatorEmail,
       subject: 'One move that gets you brand deals faster',
@@ -115,6 +132,15 @@ export async function POST(req: Request) {
         </div>
       `,
     })
+
+    // Store the Resend IDs for emails 2 and 3 so they can be cancelled on unsubscribe
+    const scheduledIds = [email2.data?.id, email3.data?.id].filter(Boolean)
+    if (profile?.id && scheduledIds.length > 0) {
+      await supabase
+        .from('profiles')
+        .update({ welcome_email_ids: scheduledIds } as any)
+        .eq('id', profile.id)
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {
