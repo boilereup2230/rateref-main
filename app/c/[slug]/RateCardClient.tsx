@@ -47,6 +47,7 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
   const [brandName, setBrandName] = useState('')
   const [email,     setEmail]     = useState('')
   const [message,   setMessage]   = useState('')
+  const [customRequest, setCustomRequest] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [sending,   setSending]   = useState(false)
   const [error,     setError]     = useState('')
@@ -88,7 +89,7 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!quote || selectedConfigs.length === 0) return
+    if ((!quote || selectedConfigs.length === 0) && !customRequest.trim()) return
     setSending(true)
     setError('')
 
@@ -99,9 +100,10 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
       message:             message || null,
       selected_post_types: selectedConfigs.map(c => c.post_type),
       addons:              addons,
-      quoted_total_cents:  quote.totalCents,
+      quoted_total_cents:  quote ? quote.totalCents : 0,
       agency_source:       agencySource || null,
-    })
+      custom_request:      customRequest.trim() || null,
+    } as any)
 
     if (error) {
       setError('Something went wrong. Please try again.')
@@ -118,7 +120,8 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
         brandName,
         contactEmail: email,
         message,
-        total:        quote.totalFormatted,
+        total:        quote ? quote.totalFormatted : 'To be discussed',
+        customRequest: customRequest.trim() || null,
       }),
     })
 
@@ -126,6 +129,7 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
   }
 
   const initials = profile.display_name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
+  const canSubmit = selectedConfigs.length > 0 || customRequest.trim().length > 0
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -421,6 +425,14 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
                   placeholder="Tell us about your campaign goals, timeline, or any specifics…" rows={3}
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none" />
               </div>
+              <div>
+                <label className="text-xs text-gray-500 mb-1 block">Something not listed? (optional)</label>
+                <textarea value={customRequest} onChange={e => setCustomRequest(e.target.value)}
+                  placeholder="Describe what you have in mind — a deliverable, format, or opportunity not shown above — and the creator will follow up directly."
+                  rows={2}
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none" />
+                <p className="text-xs text-gray-400 mt-1">No deliverables selected above? You can submit this on its own — the creator will follow up with pricing.</p>
+              </div>
 
               {/* Legal disclaimer */}
               <p className="text-xs text-gray-400 leading-relaxed">
@@ -428,9 +440,9 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
               </p>
 
               {error && <p className="text-sm text-red-600">{error}</p>}
-              <button type="submit" disabled={sending || selectedConfigs.length === 0}
+              <button type="submit" disabled={sending || !canSubmit}
                 className="w-full py-3 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-                {sending ? 'Sending…' : selectedConfigs.length === 0 ? 'Select deliverables above first' : `Send request${quote ? ` · ${quote.totalFormatted}` : ''}`}
+                {sending ? 'Sending…' : !canSubmit ? 'Select deliverables or describe your request' : `Send request${quote ? ` · ${quote.totalFormatted}` : ''}`}
               </button>
             </form>
           )}
