@@ -72,6 +72,7 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
   const [pastBrands, setPastBrands] = useState((profile as any).past_brands ?? '')
   const [contentNiche, setContentNiche] = useState((profile as any).content_niche ?? '')
   const [turnaroundDays, setTurnaroundDays] = useState(String((profile as any).turnaround_days ?? ''))
+  const [isNcaaAthlete, setIsNcaaAthlete] = useState(Boolean((profile as any).is_ncaa_athlete))
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [deleting, setDeleting] = useState(false)
@@ -206,6 +207,7 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
         past_brands: pastBrands || null,
         content_niche: contentNiche || null,
         turnaround_days: turnaroundDays ? parseInt(turnaroundDays) : null,
+        is_ncaa_athlete: isNcaaAthlete,
       } as any).eq('id', profile.id)
       if (error) { setProfileError('Save failed — please try again.'); return }
       setProfileSaved(true)
@@ -506,6 +508,20 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
                   ))}
                 </select>
                 <p className="text-xs text-gray-400 mt-1">Shown on your public card to help brands identify fit.</p>
+              </div>
+
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  id="ncaa-athlete"
+                  checked={isNcaaAthlete}
+                  onChange={e => setIsNcaaAthlete(e.target.checked)}
+                  style={{ marginTop: '3px', flexShrink: 0, width: '15px', height: '15px', cursor: 'pointer' }}
+                />
+                <label htmlFor="ncaa-athlete" className="text-xs text-blue-800 cursor-pointer">
+                  <span className="font-medium">I am a current NCAA student-athlete.</span>
+                  <span className="block text-blue-600 mt-0.5">This adds an NCAA compliance disclaimer to your public rate card.</span>
+                </label>
               </div>
 
               <div className="grid grid-cols-3 gap-3 mb-4">
