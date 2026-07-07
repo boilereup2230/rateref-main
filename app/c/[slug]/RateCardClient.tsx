@@ -59,6 +59,8 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
     })
   }, [profile.id])
 
+  const standardConfigs  = rateConfigs.filter(c => !(c as any).is_custom)
+  const customConfigs    = rateConfigs.filter(c => (c as any).is_custom)
   const selectedConfigs  = rateConfigs.filter(c => selected[c.id])
   const customTerms      = (profile as any).custom_terms as string | null
   const avgMonthlyViews  = (profile as any).avg_monthly_views as number | null
@@ -258,7 +260,7 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
           <div className="px-5 py-3.5 border-b border-gray-100">
             <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Select deliverables</p>
           </div>
-          {rateConfigs.map(cfg => {
+          {standardConfigs.map(cfg => {
             const result = calculatePrice(profile.follower_count, profile.engagement_rate, cfg.multiplier, cfg.manual_override_cents, cfg.post_type, nicheKey, avgMonthlyViews)
             const isActive = !!selected[cfg.id]
             return (
@@ -284,6 +286,47 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
             )
           })}
         </div>
+
+        {/* Custom deliverables (TV, radio, appearances, etc.) */}
+        {customConfigs.length > 0 && (
+          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
+            <div className="px-5 py-3.5 border-b border-gray-100">
+              <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Other opportunities</p>
+            </div>
+            {customConfigs.map(cfg => {
+              const hasPrice = cfg.manual_override_cents != null && cfg.manual_override_cents > 0
+              const isActive = !!selected[cfg.id]
+              if (hasPrice) {
+                return (
+                  <button key={cfg.id} onClick={() => toggleConfig(cfg.id)}
+                    className={`w-full px-5 py-4 flex items-center gap-3 text-left border-b border-gray-100 last:border-0 transition-colors ${isActive ? 'bg-emerald-50' : 'hover:bg-gray-50'}`}>
+                    <div className={`w-5 h-5 rounded flex-shrink-0 flex items-center justify-center border transition-colors ${isActive ? 'bg-emerald-600 border-emerald-600' : 'border-gray-300'}`}>
+                      {isActive && <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900">{cfg.label}</p>
+                      {cfg.description && <p className="text-xs text-gray-400 mt-0.5 truncate">{cfg.description}</p>}
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="text-sm font-semibold text-gray-900">{formatCents(cfg.manual_override_cents!)}</p>
+                    </div>
+                  </button>
+                )
+              }
+              return (
+                <div key={cfg.id} className="w-full px-5 py-4 flex items-center gap-3 border-b border-gray-100 last:border-0">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900">{cfg.label}</p>
+                    {cfg.description && <p className="text-xs text-gray-400 mt-0.5">{cfg.description}</p>}
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-xs text-gray-400 italic">Inquire for pricing</p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
 
         {/* Add-ons */}
         <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-4">
