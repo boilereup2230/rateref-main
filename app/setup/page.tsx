@@ -28,6 +28,8 @@ function SetupForm() {
   const [contentNiche, setContentNiche] = useState('')
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const [ageConfirmed, setAgeConfirmed] = useState(false)
+  const [agreementConfirmed, setAgreementConfirmed] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [checking, setChecking] = useState(true)
@@ -76,6 +78,10 @@ function SetupForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (!ageConfirmed || !agreementConfirmed) {
+      setError('Please confirm both checkboxes before creating your rate card.')
+      return
+    }
     setLoading(true)
     setError('')
     const supabase = createClient()
@@ -282,8 +288,34 @@ function SetupForm() {
                 </div>
               </div>
 
-              <button type="submit" disabled={loading}
-                style={{ width: '100%', padding: '14px', borderRadius: '10px', background: loading ? '#d1fae5' : '#059669', color: '#fff', fontSize: '14px', fontWeight: 600, border: 'none', cursor: loading ? 'not-allowed' : 'pointer' }}>
+              <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                <input
+                  type="checkbox"
+                  id="age-confirm"
+                  checked={ageConfirmed}
+                  onChange={e => setAgeConfirmed(e.target.checked)}
+                  style={{ marginTop: '3px', flexShrink: 0, width: '15px', height: '15px', cursor: 'pointer' }}
+                />
+                <label htmlFor="age-confirm" style={{ fontSize: '12px', color: '#4b5563', lineHeight: 1.5, cursor: 'pointer' }}>
+                  I confirm I am 18 years of age or older, or I have consent from a parent or legal guardian to create this account.
+                </label>
+              </div>
+
+              <div style={{ marginBottom: '24px', display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                <input
+                  type="checkbox"
+                  id="agreement-confirm"
+                  checked={agreementConfirmed}
+                  onChange={e => setAgreementConfirmed(e.target.checked)}
+                  style={{ marginTop: '3px', flexShrink: 0, width: '15px', height: '15px', cursor: 'pointer' }}
+                />
+                <label htmlFor="agreement-confirm" style={{ fontSize: '12px', color: '#4b5563', lineHeight: 1.5, cursor: 'pointer' }}>
+                  I confirm the rates and information I provide are my own, accurate, and that I have the right to offer these services.
+                </label>
+              </div>
+
+              <button type="submit" disabled={loading || !ageConfirmed || !agreementConfirmed}
+                style={{ width: '100%', padding: '14px', borderRadius: '10px', background: (loading || !ageConfirmed || !agreementConfirmed) ? '#d1fae5' : '#059669', color: '#fff', fontSize: '14px', fontWeight: 600, border: 'none', cursor: (loading || !ageConfirmed || !agreementConfirmed) ? 'not-allowed' : 'pointer' }}>
                 {loading ? 'Creating your rate card…' : 'Create my Rate Card →'}
               </button>
 
