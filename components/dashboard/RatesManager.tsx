@@ -77,6 +77,12 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
   const [deleteConfirmText, setDeleteConfirmText] = useState('')
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
+  const [showAddCustom, setShowAddCustom] = useState(false)
+  const [customLabel, setCustomLabel] = useState('')
+  const [customDesc, setCustomDesc] = useState('')
+  const [customPrice, setCustomPrice] = useState('')
+  const [addingCustom, setAddingCustom] = useState(false)
+  const [customError, setCustomError] = useState('')
 
   function updateConfig(id: string, patch: Partial<RateConfigRow>) {
     setConfigs(cs => cs.map(c => c.id === id ? { ...c, ...patch } : c))
@@ -120,6 +126,44 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     })
+  }
+
+  async function handleAddCustom() {
+    setCustomError('')
+    if (!customLabel.trim()) { setCustomError('Enter a name for this deliverable.'); return }
+    const priceDigits = customPrice.replace(/[^0-9.]/g, '')
+    const priceCents = priceDigits ? Math.round(parseFloat(priceDigits) * 100) : null
+    setAddingCustom(true)
+    const maxSort = configs.reduce((max, c) => Math.max(max, c.sort_order ?? 0), 0)
+    const { data, error } = await supabase.from('rate_configs').insert({
+      profile_id: profile.id,
+      post_type: `custom_${Date.now()}`,
+      label: customLabel.trim(),
+      description: customDesc.trim() || null,
+      multiplier: 0,
+      manual_override_cents: priceCents,
+      is_enabled: true,
+      sort_order: maxSort + 1,
+      is_custom: true,
+    } as any).select().single()
+    if (error || !data) {
+      setCustomError('Failed to add — please try again.')
+      setAddingCustom(false)
+      return
+    }
+    setConfigs(cs => [...cs, data as RateConfigRow])
+    setCustomLabel('')
+    setCustomDesc('')
+    setCustomPrice('')
+    setShowAddCustom(false)
+    setAddingCustom(false)
+  }
+
+  async function handleDeleteCustom(id: string) {
+    const { error } = await supabase.from('rate_configs').delete().eq('id', id)
+    if (!error) {
+      setConfigs(cs => cs.filter(c => c.id !== id))
+    }
   }
 
   async function handleStatusChange(inquiryId: string, newStatus: Status) {
@@ -247,6 +291,8 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
   const publicUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/c/${profile.slug}`
   const newInquiries = inquiries.filter(i => i.status === 'new').length
   const hasChanges = dirty.size > 0 || metricsDirty
+  const standardConfigs = configs.filter(c => !(c as any).is_custom)
+  const customConfigs = configs.filter(c => (c as any).is_custom)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -314,53 +360,123 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
         </div>
 
         {tab === 'rates' && (
-          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-              <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Post types</p>
-              <p className="text-xs text-gray-400">Toggle off to hide from your public card</p>
-            </div>
-            {configs.map(cfg => {
-              const result = calculatePrice(followerNum, engagementNum, cfg.multiplier, cfg.manual_override_cents)
-              const isDirty = dirty.has(cfg.id)
-              return (
-                <div key={cfg.id} className={`px-5 py-4 border-b border-gray-100 last:border-0 ${!cfg.is_enabled ? 'opacity-50' : ''}`}>
-                  <div className="flex items-start gap-4">
-                    <button onClick={() => updateConfig(cfg.id, { is_enabled: !cfg.is_enabled })}
-                      className={`mt-0.5 w-9 h-5 rounded-full transition-colors flex-shrink-0 ${cfg.is_enabled ? 'bg-emerald-500' : 'bg-gray-200'}`}>
-                      <div className={`w-3.5 h-3.5 rounded-full bg-white shadow-sm transform transition-transform mx-0.5 ${cfg.is_enabled ? 'translate-x-4' : 'translate-x-0'}`} />
-                    </button>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900">{cfg.label}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">{cfg.description}</p>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="text-sm font-medium text-gray-900">{result.priceFormatted}</p>
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        {result.isManualOverride ? 'Custom price' : result.bonusApplied ? '⚡ Bonus applied' : 'Formula rate'}
-                      </p>
-                      <div className="mt-2 flex items-center gap-1">
-                        <span className="text-xs text-gray-400">$</span>
-                        <input type="text" inputMode="decimal" placeholder="Override"
-                          value={cfg.manual_override_cents ? (cfg.manual_override_cents / 100).toFixed(0) : ''}
-                          onChange={e => handleOverrideInput(cfg.id, e.target.value)}
-                          className="w-20 px-2 py-1 border border-gray-200 rounded-md text-xs text-right focus:outline-none focus:ring-1 focus:ring-emerald-500" />
+          <>
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
+              <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Post types</p>
+                <p className="text-xs text-gray-400">Toggle off to hide from your public card</p>
+              </div>
+              {standardConfigs.map(cfg => {
+                const result = calculatePrice(followerNum, engagementNum, cfg.multiplier, cfg.manual_override_cents)
+                const isDirty = dirty.has(cfg.id)
+                return (
+                  <div key={cfg.id} className={`px-5 py-4 border-b border-gray-100 last:border-0 ${!cfg.is_enabled ? 'opacity-50' : ''}`}>
+                    <div className="flex items-start gap-4">
+                      <button onClick={() => updateConfig(cfg.id, { is_enabled: !cfg.is_enabled })}
+                        className={`mt-0.5 w-9 h-5 rounded-full transition-colors flex-shrink-0 ${cfg.is_enabled ? 'bg-emerald-500' : 'bg-gray-200'}`}>
+                        <div className={`w-3.5 h-3.5 rounded-full bg-white shadow-sm transform transition-transform mx-0.5 ${cfg.is_enabled ? 'translate-x-4' : 'translate-x-0'}`} />
+                      </button>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900">{cfg.label}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{cfg.description}</p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="text-sm font-medium text-gray-900">{result.priceFormatted}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {result.isManualOverride ? 'Custom price' : result.bonusApplied ? '⚡ Bonus applied' : 'Formula rate'}
+                        </p>
+                        <div className="mt-2 flex items-center gap-1">
+                          <span className="text-xs text-gray-400">$</span>
+                          <input type="text" inputMode="decimal" placeholder="Override"
+                            value={cfg.manual_override_cents ? (cfg.manual_override_cents / 100).toFixed(0) : ''}
+                            onChange={e => handleOverrideInput(cfg.id, e.target.value)}
+                            className="w-20 px-2 py-1 border border-gray-200 rounded-md text-xs text-right focus:outline-none focus:ring-1 focus:ring-emerald-500" />
+                        </div>
                       </div>
                     </div>
+                    {isDirty && <p className="text-xs text-amber-500 mt-1 text-right">Unsaved changes</p>}
                   </div>
-                  {isDirty && <p className="text-xs text-amber-500 mt-1 text-right">Unsaved changes</p>}
-                </div>
-              )
-            })}
-            <div className="px-5 py-4 bg-gray-50 flex items-center justify-between">
-              {error && <p className="text-sm text-red-600">{error}</p>}
-              {saved && <p className="text-sm text-emerald-600">✓ Saved</p>}
-              {!error && !saved && <p className="text-xs text-gray-400">{hasChanges ? 'Unsaved changes' : 'All changes saved'}</p>}
-              <button onClick={handleSave} disabled={saving || !hasChanges}
-                className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-40 transition-colors">
-                {saving ? 'Saving…' : 'Save changes'}
-              </button>
+                )
+              })}
+              <div className="px-5 py-4 bg-gray-50 flex items-center justify-between">
+                {error && <p className="text-sm text-red-600">{error}</p>}
+                {saved && <p className="text-sm text-emerald-600">✓ Saved</p>}
+                {!error && !saved && <p className="text-xs text-gray-400">{hasChanges ? 'Unsaved changes' : 'All changes saved'}</p>}
+                <button onClick={handleSave} disabled={saving || !hasChanges}
+                  className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-40 transition-colors">
+                  {saving ? 'Saving…' : 'Save changes'}
+                </button>
+              </div>
             </div>
-          </div>
+
+            {/* Custom deliverables */}
+            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+              <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Custom deliverables</p>
+                  <p className="text-xs text-gray-400 mt-0.5">TV, radio, appearances, or anything else outside your usual posts — you set the price directly.</p>
+                </div>
+              </div>
+
+              {customConfigs.map(cfg => (
+                <div key={cfg.id} className="px-5 py-4 border-b border-gray-100 flex items-start justify-between gap-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900">{cfg.label}</p>
+                    {cfg.description && <p className="text-xs text-gray-400 mt-0.5">{cfg.description}</p>}
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-sm font-medium text-gray-900">
+                      {cfg.manual_override_cents ? formatCents(cfg.manual_override_cents) : 'Inquire for pricing'}
+                    </p>
+                    <button onClick={() => handleDeleteCustom(cfg.id)} className="text-xs text-red-500 hover:underline mt-1">Remove</button>
+                  </div>
+                </div>
+              ))}
+
+              {!showAddCustom && (
+                <div className="px-5 py-4">
+                  <button onClick={() => setShowAddCustom(true)}
+                    className="text-sm font-medium text-emerald-600 hover:text-emerald-700">
+                    + Add a custom deliverable
+                  </button>
+                </div>
+              )}
+
+              {showAddCustom && (
+                <div className="px-5 py-4 bg-gray-50">
+                  <div className="mb-3">
+                    <label className="text-xs text-gray-500 mb-1 block">Name *</label>
+                    <input value={customLabel} onChange={e => setCustomLabel(e.target.value)} placeholder="e.g. Local TV commercial, Radio spot, In-person appearance"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                  </div>
+                  <div className="mb-3">
+                    <label className="text-xs text-gray-500 mb-1 block">Description (optional)</label>
+                    <input value={customDesc} onChange={e => setCustomDesc(e.target.value)} placeholder="e.g. 30-second local market TV spot"
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                  </div>
+                  <div className="mb-3">
+                    <label className="text-xs text-gray-500 mb-1 block">Price (optional — leave blank to show "Inquire for pricing")</label>
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-gray-400">$</span>
+                      <input value={customPrice} onChange={e => setCustomPrice(e.target.value)} type="text" inputMode="decimal" placeholder="e.g. 1500"
+                        className="w-32 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    </div>
+                  </div>
+                  {customError && <p className="text-xs text-red-600 mb-3">{customError}</p>}
+                  <div className="flex items-center gap-2">
+                    <button onClick={handleAddCustom} disabled={addingCustom}
+                      className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-40 transition-colors">
+                      {addingCustom ? 'Adding…' : 'Add deliverable'}
+                    </button>
+                    <button onClick={() => { setShowAddCustom(false); setCustomLabel(''); setCustomDesc(''); setCustomPrice(''); setCustomError('') }}
+                      className="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-100 transition-colors">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
         )}
 
         {tab === 'inquiries' && (
