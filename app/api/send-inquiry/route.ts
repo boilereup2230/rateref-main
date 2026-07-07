@@ -5,7 +5,14 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: NextRequest) {
   try {
-    const { creatorEmail, creatorName, brandName, contactEmail, message, total } = await req.json()
+    const { creatorEmail, creatorName, brandName, contactEmail, message, total, customRequest } = await req.json()
+
+    const customRequestBlock = customRequest ? `
+      <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; margin: 16px 0;">
+        <p style="font-size: 13px; font-weight: 600; color: #1e40af; margin: 0 0 6px;">Custom request (not on your standard rate card)</p>
+        <p style="font-size: 14px; color: #1e3a8a; margin: 0; white-space: pre-wrap;">${customRequest}</p>
+      </div>
+    ` : ''
 
     // Creator notification
     await resend.emails.send({
@@ -26,6 +33,7 @@ export async function POST(req: NextRequest) {
             <tr><td style="padding: 10px 8px; border-bottom: 1px solid #f3f4f6; color: #666;">Quote total</td><td style="padding: 10px 8px; border-bottom: 1px solid #f3f4f6; font-weight: 600; color: #16a34a;">${total}</td></tr>
             <tr><td style="padding: 10px 8px; color: #666; vertical-align: top;">Message</td><td style="padding: 10px 8px;">${message || 'No message provided'}</td></tr>
           </table>
+          ${customRequestBlock}
           <a href="https://rateref.co/dashboard" style="background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: 500; font-size: 14px;">View in Dashboard →</a>
           <p style="margin-top: 32px; color: #999; font-size: 13px;">You received this because a brand submitted a request through your RateRef rate card. Reply directly to this email to contact ${brandName}.</p>
         </div>
@@ -49,6 +57,7 @@ export async function POST(req: NextRequest) {
             <tr><td style="padding: 10px 8px; border-bottom: 1px solid #f3f4f6; color: #666;">Quote total</td><td style="padding: 10px 8px; border-bottom: 1px solid #f3f4f6; font-weight: 600; color: #16a34a;">${total}</td></tr>
             <tr><td style="padding: 10px 8px; color: #666; vertical-align: top;">Your message</td><td style="padding: 10px 8px;">${message || 'No message provided'}</td></tr>
           </table>
+          ${customRequestBlock}
           <p style="margin-top: 32px; color: #999; font-size: 13px;">Powered by <a href="https://rateref.co" style="color: #16a34a; text-decoration: none;">RateRef</a> — the live rate card for creators who do brand deals.</p>
         </div>
       `
