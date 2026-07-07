@@ -54,7 +54,7 @@ export default function PreviewGenerator() {
     previewLink: { flex: 1, padding: '12px 0', borderRadius: '10px', background: 'rgba(255,255,255,0.06)', color: '#9ca3af', fontSize: '14px', fontWeight: 500, border: '1px solid rgba(255,255,255,0.1)', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' },
     divider: { paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.06)' },
     dmLabel: { color: '#6b7280', fontSize: '12px', fontWeight: 500, marginBottom: '10px' },
-    dmBox: { background: 'rgba(0,0,0,0.2)', borderRadius: '10px', padding: '14px 16px', color: '#9ca3af', fontSize: '13px', lineHeight: '1.8' },
+    dmBox: { background: 'rgba(0,0,0,0.2)', borderRadius: '10px', padding: '14px 16px', color: '#9ca3af', fontSize: '13px', lineHeight: '1.8', wordBreak: 'break-word' as const, overflowWrap: 'break-word' as const },
     tips: { marginTop: '32px', padding: '24px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px' },
     tipsLabel: { color: '#6b7280', fontSize: '12px', fontWeight: 500, marginBottom: '16px' },
     tipRow: { display: 'flex', gap: '12px', alignItems: 'flex-start', marginBottom: '10px' },
