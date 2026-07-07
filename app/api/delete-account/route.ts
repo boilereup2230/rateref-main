@@ -15,6 +15,11 @@ export async function POST(req: NextRequest) {
     )
     const { data: { user }, error: userError } = await anonClient.auth.getUser(token)
     if (userError || !user) {
+      console.error('DELETE-ACCOUNT AUTH DEBUG:', {
+        userError,
+        tokenPrefix: token.slice(0, 20),
+        supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      })
       return NextResponse.json({ error: 'Invalid session' }, { status: 401 })
     }
 
@@ -25,7 +30,6 @@ export async function POST(req: NextRequest) {
 
     const userId = user.id
 
-    // Delete storage files (avatar + header photo/video)
     const { data: avatarFiles } = await admin.storage.from('avatars').list(userId)
     if (avatarFiles && avatarFiles.length > 0) {
       await admin.storage.from('avatars').remove(avatarFiles.map(f => `${userId}/${f.name}`))
@@ -35,12 +39,10 @@ export async function POST(req: NextRequest) {
       await admin.storage.from('headers').remove(headerFiles.map(f => `${userId}/${f.name}`))
     }
 
-    // Delete database rows tied to this profile
     await admin.from('inquiries').delete().eq('profile_id', userId)
     await admin.from('rate_configs').delete().eq('profile_id', userId)
     await admin.from('profiles').delete().eq('id', userId)
 
-    // Delete the login itself — this is what actually prevents them logging back in
     const { error: deleteAuthError } = await admin.auth.admin.deleteUser(userId)
     if (deleteAuthError) {
       return NextResponse.json({ error: 'Account data deleted, but login removal failed. Contact support.' }, { status: 500 })
