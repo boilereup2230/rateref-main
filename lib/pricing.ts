@@ -200,9 +200,10 @@ function addonLabel(key: AddonKey): string {
 }
 
 export const DEFAULT_RATE_CONFIGS: Omit<RateConfig, 'manual_override_cents'>[] = [
-  { post_type: 'reel',   label: 'Instagram Reel',      description: '60-second branded video · 1 revision included', multiplier: 1.00, is_enabled: true, sort_order: 0 },
-  { post_type: 'story',  label: 'Instagram Story',     description: '3-frame story set · Link sticker included',      multiplier: 0.25, is_enabled: true, sort_order: 1 },
-  { post_type: 'tiktok', label: 'TikTok Video',        description: '30–60 second TikTok · Trend-aligned format',     multiplier: 0.875, is_enabled: true, sort_order: 2 },
-  { post_type: 'static', label: 'Static Feed Post',    description: 'Single image + caption · 7-day usage rights',    multiplier: 0.55, is_enabled: true, sort_order: 3 },
-  { post_type: 'bundle', label: 'Reel + Story Bundle', description: 'Full Reel plus 3-frame story · Best value',      multiplier: 1.50, is_enabled: true, sort_order: 4 },
+  { post_type: 'reel',    label: 'Instagram Reel',      description: '60-second branded video · 1 revision included', multiplier: 1.00, is_enabled: true, sort_order: 0 },
+  { post_type: 'story',   label: 'Instagram Story',     description: '3-frame story set · Link sticker included',      multiplier: 0.25, is_enabled: true, sort_order: 1 },
+  { post_type: 'tiktok',  label: 'TikTok Video',        description: '30–60 second TikTok · Trend-aligned format',     multiplier: 0.875, is_enabled: true, sort_order: 2 },
+  { post_type: 'static',  label: 'Static Feed Post',    description: 'Single image + caption · 7-day usage rights',    multiplier: 0.55, is_enabled: true, sort_order: 3 },
+  { post_type: 'bundle',  label: 'Reel + Story Bundle', description: 'Full Reel plus 3-frame story · Best value',      multiplier: 1.50, is_enabled: true, sort_order: 4 },
+  { post_type: 'youtube', label: 'YouTube Video',       description: 'Dedicated video upload to your channel',        multiplier: 1.20, is_enabled: true, sort_order: 5 },
 ]
