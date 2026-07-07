@@ -296,38 +296,40 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span className="font-semibold text-gray-900">RateRef</span>
-          <span className="text-gray-300">|</span>
-          <span className="text-sm text-gray-500">{profile.display_name}</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <a href={publicUrl} target="_blank" className="text-sm text-emerald-600 hover:underline flex items-center gap-1">View my card ↗</a>
-          <button onClick={signOut} className="text-sm text-gray-400 hover:text-gray-600">Sign out</button>
+      <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="font-semibold text-gray-900">RateRef</span>
+            <span className="text-gray-300 hidden sm:inline">|</span>
+            <span className="text-sm text-gray-500">{profile.display_name}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <a href={publicUrl} target="_blank" className="text-sm text-emerald-600 hover:underline flex items-center gap-1">View my card ↗</a>
+            <button onClick={signOut} className="text-sm text-gray-400 hover:text-gray-600">Sign out</button>
+          </div>
         </div>
       </header>
 
       <div className="max-w-3xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-8">
           <StatCard label="Followers" value={followerNum.toLocaleString()} />
           <StatCard label="Engagement rate" value={`${engagementNum.toFixed(1)}%`} sub={engagementNum >= 3 ? '⚡ Bonus tier active' : undefined} />
           <StatCard label="Pending inquiries" value={String(newInquiries)} sub={newInquiries > 0 ? 'Needs attention' : undefined} />
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-200 p-4 mb-6 flex items-center justify-between">
+        <div className="bg-white rounded-2xl border border-gray-200 p-4 mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <p className="text-sm font-medium text-gray-900">{monthlyInquiryCount} inquir{monthlyInquiryCount === 1 ? 'y' : 'ies'} this month</p>
             <p className="text-xs text-gray-400 mt-0.5">Unlimited on every plan</p>
           </div>
-          <span className="text-xs font-medium bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full">
+          <span className="text-xs font-medium bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full self-start sm:self-auto">
             Pro ($19/mo) coming soon — remove footer branding
           </span>
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-200 p-5 mb-6">
           <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3">Update your pricing metrics</p>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <div>
               <label className="text-xs text-gray-500 mb-1 block">Total followers</label>
               <input value={followers} onChange={e => handleMetricChange(setFollowers, e.target.value)} type="number" min="0"
@@ -338,7 +340,7 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
               <input value={engagement} onChange={e => handleMetricChange(setEngagement, e.target.value)} type="number" min="0" max="100" step="0.1"
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
             </div>
-            <div>
+            <div className="col-span-2 sm:col-span-1">
               <label className="text-xs text-gray-500 mb-1 block">Avg. views per video</label>
               <input value={avgMonthlyViews} onChange={e => handleMetricChange(setAvgMonthlyViews, e.target.value)} type="number" min="0" placeholder="e.g. 125000"
                 className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
@@ -398,7 +400,7 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
                   </div>
                 )
               })}
-              <div className="px-5 py-4 bg-gray-50 flex items-center justify-between">
+              <div className="px-5 py-4 bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 {error && <p className="text-sm text-red-600">{error}</p>}
                 {saved && <p className="text-sm text-emerald-600">✓ Saved</p>}
                 {!error && !saved && <p className="text-xs text-gray-400">{hasChanges ? 'Unsaved changes' : 'All changes saved'}</p>}
@@ -411,11 +413,9 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
 
             {/* Custom deliverables */}
             <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-              <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Custom deliverables</p>
-                  <p className="text-xs text-gray-400 mt-0.5">TV, radio, appearances, or anything else outside your usual posts — you set the price directly.</p>
-                </div>
+              <div className="px-5 py-4 border-b border-gray-100">
+                <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Custom deliverables</p>
+                <p className="text-xs text-gray-400 mt-0.5">TV, radio, appearances, or anything else outside your usual posts — you set the price directly.</p>
               </div>
 
               {customConfigs.map(cfg => (
@@ -488,10 +488,10 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
               <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center">
                 <p className="text-gray-400 text-sm">No inquiries yet.</p>
                 <p className="text-gray-400 text-sm mt-1">Share your rate card link to start getting brand requests.</p>
-                <div className="mt-4 flex items-center justify-center gap-2">
-                  <input readOnly value={publicUrl} className="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 w-72" />
+                <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-2">
+                  <input readOnly value={publicUrl} className="px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 w-full sm:w-72" />
                   <button onClick={() => navigator.clipboard.writeText(publicUrl)}
-                    className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50">Copy</button>
+                    className="px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 w-full sm:w-auto">Copy</button>
                 </div>
               </div>
             )}
@@ -550,7 +550,7 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
                       <img src={headerPhotoUrl} alt="Header" className="w-full h-full object-cover" />
                     </div>
                   )}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <label className="inline-block px-3 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-600 hover:bg-gray-100 cursor-pointer">
                       {uploadingHeaderPhoto ? 'Uploading…' : headerPhotoUrl ? 'Change photo' : 'Upload photo'}
                       <input type="file" accept="image/*" onChange={handleHeaderPhotoUpload} disabled={uploadingHeaderPhoto} className="hidden" />
@@ -571,7 +571,7 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
                       <video src={headerVideoUrl} className="w-full h-full object-cover" muted loop playsInline autoPlay />
                     </div>
                   )}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <label className="inline-block px-3 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-600 hover:bg-gray-100 cursor-pointer">
                       {uploadingHeaderVideo ? 'Uploading…' : headerVideoUrl ? 'Change video' : 'Upload video'}
                       <input type="file" accept="video/mp4,video/mov,video/quicktime" onChange={handleHeaderVideoUpload} disabled={uploadingHeaderVideo} className="hidden" />
@@ -640,7 +640,7 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
                 </label>
               </div>
 
-              <div className="grid grid-cols-3 gap-3 mb-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">Instagram</label>
                   <input value={instagramHandle} onChange={e => setInstagramHandle(e.target.value)} placeholder="handle"
@@ -684,7 +684,7 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
                 <p className="text-xs text-gray-400 mt-1">Shown on your public rate card above the booking form.</p>
               </div>
 
-              <div className="flex items-center justify-between pt-2">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
                 {profileError && <p className="text-sm text-red-600">{profileError}</p>}
                 {profileSaved && !profileError && <p className="text-sm text-emerald-600">✓ Saved</p>}
                 {!profileError && !profileSaved && <span />}
@@ -697,11 +697,13 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
 
             <div className="bg-white rounded-2xl border border-gray-200 p-6">
               <p className="text-sm font-medium text-gray-700 mb-4">Your public link</p>
-              <div className="flex items-center gap-2 mb-6">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-6">
                 <input readOnly value={publicUrl} className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600" />
-                <button onClick={() => navigator.clipboard.writeText(publicUrl)}
-                  className="px-3 py-2 rounded-lg border border-gray-200 text-sm hover:bg-gray-50">Copy</button>
-                <a href={publicUrl} target="_blank" className="px-3 py-2 rounded-lg border border-gray-200 text-sm hover:bg-gray-50">Open ↗</a>
+                <div className="flex gap-2">
+                  <button onClick={() => navigator.clipboard.writeText(publicUrl)}
+                    className="px-3 py-2 rounded-lg border border-gray-200 text-sm hover:bg-gray-50 flex-1 sm:flex-none">Copy</button>
+                  <a href={publicUrl} target="_blank" className="px-3 py-2 rounded-lg border border-gray-200 text-sm hover:bg-gray-50 flex-1 sm:flex-none text-center">Open ↗</a>
+                </div>
               </div>
               <p className="text-xs text-gray-400">
                 Share this link in your Instagram bio, email signature, or DMs. Brands will see your live rates and can submit booking requests directly.
@@ -731,7 +733,7 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
                     className="w-full px-3 py-2 border border-red-300 rounded-lg text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-red-400"
                   />
                   {deleteError && <p className="text-xs text-red-600 mb-3">{deleteError}</p>}
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                     <button
                       onClick={handleDeleteAccount}
                       disabled={deleteConfirmText !== 'DELETE' || deleting}
@@ -757,7 +759,7 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
 
 function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 px-4 py-3">
+    <div className="bg-white rounded-xl border border-gray-200 px-3 sm:px-4 py-3">
       <p className="text-xs text-gray-400 uppercase tracking-wider">{label}</p>
       <p className="text-xl font-medium text-gray-900 mt-1">{value}</p>
       {sub && <p className="text-xs text-emerald-600 mt-0.5">{sub}</p>}
