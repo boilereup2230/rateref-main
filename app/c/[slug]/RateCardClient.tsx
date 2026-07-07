@@ -67,6 +67,7 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
   const turnaroundDays   = (profile as any).turnaround_days as number | null
   const headerPhotoUrl   = (profile as any).header_photo_url as string | null
   const headerVideoUrl   = (profile as any).header_video_url as string | null
+  const isNcaaAthlete    = Boolean((profile as any).is_ncaa_athlete)
   const pastBrandList    = pastBrands ? pastBrands.split(',').map((b: string) => b.trim()).filter(Boolean) : []
   const nicheKey         = contentNiche ? (NICHE_KEY_MAP[contentNiche] ?? null) : null
   const headerGradient   = contentNiche ? (NICHE_GRADIENTS[contentNiche] ?? DEFAULT_GRADIENT) : DEFAULT_GRADIENT
@@ -322,6 +323,16 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
                 <span className="text-gray-900">{quote.totalFormatted}</span>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* NCAA compliance disclaimer */}
+        {isNcaaAthlete && (
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 mb-4">
+            <p className="text-xs font-medium text-blue-700 uppercase tracking-wider mb-2">NCAA compliance notice</p>
+            <p className="text-sm text-blue-900 leading-relaxed">
+              This creator is a current NCAA student-athlete. Any Name, Image, and Likeness (NIL) agreement must comply with NCAA regulations and any applicable state, university, or conference policies. Brands are responsible for ensuring their own compliance with these rules before finalizing any agreement.
+            </p>
           </div>
         )}
 
