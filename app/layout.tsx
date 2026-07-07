@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { Analytics } from '@vercel/analytics/react'
-
 export const metadata: Metadata = {
   title:       'RateRef',
   description: 'Dynamic rate cards for creators',
@@ -9,7 +8,6 @@ export const metadata: Metadata = {
     google: 'judsTlchmc13VJExldFVGEuXYtEAcrOeYNcdnMCQ_RI',
   },
 }
-
 export default function RootLayout({
   children,
 }: {
@@ -39,6 +37,11 @@ export default function RootLayout({
             target="_blank" rel="noopener noreferrer"
             style={{ color: '#6b7280', textDecoration: 'none' }}>
             Terms & Conditions
+          </a>
+          <span style={{ margin: '0 8px' }}>·</span>
+          <a href="/cookie-policy"
+            style={{ color: '#6b7280', textDecoration: 'none' }}>
+            Cookie Policy
           </a>
         </footer>
       </body>
