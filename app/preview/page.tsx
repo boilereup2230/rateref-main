@@ -2,16 +2,7 @@
 
 import { useSearchParams } from 'next/navigation'
 import { Suspense } from 'react'
-
-function calculateRate(followers: number, engagement: number, multiplier: number): number {
-  const base = (followers / 10000) * 1000 * multiplier
-  const engagementBonus = engagement >= 3 ? 1.5 : 1.0
-  return Math.max(Math.round(base * engagementBonus), 25)
-}
-
-function formatPrice(n: number): string {
-  return '$' + n.toLocaleString()
-}
+import { calculatePrice, formatCents, DEFAULT_RATE_CONFIGS } from '@/lib/pricing'
 
 function formatFollowers(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
@@ -19,13 +10,13 @@ function formatFollowers(n: number): string {
   return String(n)
 }
 
-const POST_TYPES = [
-  { key: 'reel',   label: 'Instagram Reel',      desc: '60-sec branded video · 1 revision included',       multiplier: 1.00 },
-  { key: 'story',  label: 'Instagram Story',      desc: '3-frame story set · Link sticker included',        multiplier: 0.45 },
-  { key: 'tiktok', label: 'TikTok Video',         desc: '30–60 second TikTok · Trend-aligned format',       multiplier: 0.90 },
-  { key: 'static', label: 'Static Feed Post',     desc: 'Single image + caption · 7-day usage rights',     multiplier: 0.60 },
-  { key: 'bundle', label: 'Reel + Story Bundle',  desc: 'Full Reel plus 3-frame story · Best value',        multiplier: 1.35 },
-]
+const POST_TYPE_DESCRIPTIONS: Record<string, string> = {
+  reel:   'Instagram Reel',
+  story:  'Instagram Story',
+  tiktok: 'TikTok Video',
+  static: 'Static Feed Post',
+  bundle: 'Reel + Story Bundle',
+}
 
 function PreviewContent() {
   const params = useSearchParams()
@@ -36,14 +27,14 @@ function PreviewContent() {
   const engagement = parseFloat(params.get('engagement') || '3.5')
   const platform   = params.get('platform')   || 'instagram'
 
-  const bonusApplied = engagement >= 3
+  const bonusApplied = engagement > 2.5
   const initials = name.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)
   const slug     = handle.replace('@', '').toLowerCase().replace(/[^a-z0-9-]/g, '')
   const claimUrl = `/setup?slug=${slug}`
 
-  const visibleTypes = POST_TYPES.filter(pt => {
-    if (platform === 'instagram') return ['reel', 'story', 'static', 'bundle'].includes(pt.key)
-    if (platform === 'tiktok')    return ['tiktok', 'static'].includes(pt.key)
+  const visibleTypes = DEFAULT_RATE_CONFIGS.filter(pt => {
+    if (platform === 'instagram') return ['reel', 'story', 'static', 'bundle'].includes(pt.post_type)
+    if (platform === 'tiktok')    return ['tiktok', 'static'].includes(pt.post_type)
     return true
   })
 
@@ -111,7 +102,7 @@ function PreviewContent() {
         {/* Bonus tier explainer */}
         {bonusApplied && (
           <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 12, padding: '12px 16px', marginBottom: 16, fontSize: 12, color: '#065f46', lineHeight: 1.5 }}>
-            <strong>⚡ Bonus Tier Pricing Active</strong> — This creator&apos;s {engagement.toFixed(1)}% engagement rate exceeds the 3% threshold, applying a 1.5× pricing multiplier. Their audience is significantly more engaged than average, reflecting higher commercial value for brand partnerships.
+            <strong>⚡ Bonus Tier Pricing Active</strong> — This creator&apos;s {engagement.toFixed(1)}% engagement rate is above average, applying a pricing multiplier. Their audience is more engaged than average, reflecting higher commercial value for brand partnerships.
           </div>
         )}
 
@@ -121,19 +112,19 @@ function PreviewContent() {
             <p style={{ fontSize: 11, fontWeight: 500, color: '#9ca3af', textTransform: 'uppercase' as const, letterSpacing: '.06em' }}>Available deliverables</p>
           </div>
           {visibleTypes.map((pt, i) => {
-            const price = calculateRate(followers, engagement, pt.multiplier)
+            const result = calculatePrice(followers, engagement, pt.multiplier, null, pt.post_type, null, null)
             return (
-              <div key={pt.key} style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: i < visibleTypes.length - 1 ? '1px solid #f3f4f6' : 'none' }}>
+              <div key={pt.post_type} style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: i < visibleTypes.length - 1 ? '1px solid #f3f4f6' : 'none' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{ width: 20, height: 20, borderRadius: 4, border: '1.5px solid #d1d5db', flexShrink: 0 }} />
                   <div>
                     <p style={{ fontSize: 14, fontWeight: 500, color: '#111827' }}>{pt.label}</p>
-                    <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 1 }}>{pt.desc}</p>
+                    <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 1 }}>{pt.description}</p>
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' as const }}>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: '#111827' }}>{formatPrice(price)}</p>
-                  {bonusApplied && <p style={{ fontSize: 10, color: '#10b981', marginTop: 1 }}>⚡ Bonus tier</p>}
+                  <p style={{ fontSize: 14, fontWeight: 600, color: '#111827' }}>{result.priceFormatted}</p>
+                  {result.bonusApplied && <p style={{ fontSize: 10, color: '#10b981', marginTop: 1 }}>⚡ Bonus tier</p>}
                 </div>
               </div>
             )
