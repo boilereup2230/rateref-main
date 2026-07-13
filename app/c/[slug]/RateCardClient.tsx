@@ -150,7 +150,7 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
         <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-4">
 
           {/* Header — video > photo > gradient */}
-          <div className="relative w-full h-28 overflow-hidden">
+          <div className="relative w-full h-36 overflow-hidden">
             {headerVideoUrl ? (
               <video
                 src={headerVideoUrl}
@@ -171,7 +171,7 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
             {/* Name + badges + avatar overlaid */}
             <div className="absolute bottom-0 left-0 right-0 px-5 pb-4 flex items-end justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 font-semibold text-base flex-shrink-0 overflow-hidden border-2 border-white shadow-sm">
+                <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-700 font-semibold text-xl flex-shrink-0 overflow-hidden border-2 border-white shadow-sm">
                   {profile.avatar_url ? (
                     <img src={profile.avatar_url} alt={profile.display_name} className="w-full h-full object-cover" />
                   ) : (
@@ -179,7 +179,7 @@ export default function RateCardClient({ profile, rateConfigs, agencySource }: P
                   )}
                 </div>
                 <div>
-                  <h1 className="font-semibold text-white text-sm leading-tight" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>{profile.display_name}</h1>
+                  <h1 className="font-semibold text-white text-base leading-tight" style={{ textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>{profile.display_name}</h1>
                   <div className="flex items-center gap-2 flex-wrap mt-0.5">
                     <span className="inline-flex items-center gap-1 text-xs bg-white/20 backdrop-blur text-white px-2 py-0.5 rounded-full">
                       <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
