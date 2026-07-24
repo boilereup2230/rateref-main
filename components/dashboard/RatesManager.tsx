@@ -40,6 +40,10 @@ const NICHE_OPTIONS = [
   { value: 'Other', label: 'Other' },
 ]
 
+function stripAt(value: string) {
+  return value.replace(/^@+/, '')
+}
+
 export default function RatesManager({ profile, rateConfigs: initial, inquiries: initialInquiries, monthlyInquiryCount }: Props) {
   const supabase = createClient()
   const [tab, setTab] = useState<Tab>('rates')
@@ -643,17 +647,17 @@ export default function RatesManager({ profile, rateConfigs: initial, inquiries:
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">Instagram</label>
-                  <input value={instagramHandle} onChange={e => setInstagramHandle(e.target.value)} placeholder="handle"
+                  <input value={instagramHandle} onChange={e => setInstagramHandle(stripAt(e.target.value))} placeholder="handle"
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                 </div>
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">TikTok</label>
-                  <input value={tiktokHandle} onChange={e => setTiktokHandle(e.target.value)} placeholder="handle"
+                  <input value={tiktokHandle} onChange={e => setTiktokHandle(stripAt(e.target.value))} placeholder="handle"
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                 </div>
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">YouTube</label>
-                  <input value={youtubeHandle} onChange={e => setYoutubeHandle(e.target.value)} placeholder="handle"
+                  <input value={youtubeHandle} onChange={e => setYoutubeHandle(stripAt(e.target.value))} placeholder="handle"
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
                 </div>
               </div>
