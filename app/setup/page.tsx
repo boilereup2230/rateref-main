@@ -21,6 +21,8 @@ const NICHE_OPTIONS = [
   { value: 'Other', label: 'Other' },
 ]
 
+const HANDLE_FIELDS = ['instagram_handle', 'tiktok_handle', 'youtube_handle']
+
 function SetupForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -66,7 +68,14 @@ function SetupForm() {
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     const { name, value } = e.target
-    setForm(f => ({ ...f, [name]: name === 'slug' ? value.toLowerCase().replace(/[^a-z0-9-]/g, '') : value }))
+    setForm(f => ({
+      ...f,
+      [name]: name === 'slug'
+        ? value.toLowerCase().replace(/[^a-z0-9-]/g, '')
+        : HANDLE_FIELDS.includes(name)
+        ? value.replace(/^@+/, '')
+        : value,
+    }))
   }
 
   function handleAvatarSelect(e: React.ChangeEvent<HTMLInputElement>) {
